@@ -26,13 +26,13 @@ public class RoutinesController : ControllerBase
     [HttpGet("{id:int}")]
     public ActionResult<Routine> Get(int id)
     {
-        foreach (var routine in Routines)
+        var routine = Routines.FirstOrDefault(r => r.Id == id);
+
+        if (routine != null)
         {
-            if (routine.Id == id)
-            {
-                return Ok(routine);
-            }
+            return Ok(routine);
         }
+
         return NotFound();
     }
 
@@ -53,23 +53,17 @@ public class RoutinesController : ControllerBase
     [HttpPut("{id:int}")]
     public IActionResult Update(int id, Routine routine)
     {
-        int idx = -1;
-        for (int i = 0; i < Routines.Count; i++)
-        {
-            if (Routines[i].Id == id)
-            {
-                idx = i;
-                break;
-            }
-        }
+        var initial = Routines.FirstOrDefault(r => r.Id == id);
 
-        if (idx == -1)
+        if (initial == null)
         {
             return NotFound();
         }
 
-        routine.Id = id;
-        Routines[idx] = routine;
+        initial.Title = routine.Title;
+        initial.FrequencyPerWeek = routine.FrequencyPerWeek;
+        initial.Difficulty = routine.Difficulty;
+
         return NoContent();
     }
 
@@ -79,14 +73,15 @@ public class RoutinesController : ControllerBase
     [HttpDelete("{id:int}")]
     public IActionResult Delete(int id)
     {
-        for (int i = 0; i < Routines.Count; i++)
+        var routine = Routines.FirstOrDefault(r => r.Id == id);
+
+        if (routine == null)
         {
-            if (Routines[i].Id == id)
-            {
-                Routines.RemoveAt(i);
-                return NoContent();
-            }
+            return NotFound();
         }
-        return NotFound();
+
+        Routines.Remove(routine);
+
+        return NoContent();
     }
 }

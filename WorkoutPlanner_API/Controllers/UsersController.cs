@@ -21,12 +21,10 @@ public class UsersController : ControllerBase
     [HttpGet("{id:int}")]
     public ActionResult<User> Get(int id)
     {
-        foreach (var user in Users)
+        var user = Users.FirstOrDefault(u => u.Id == id);
+        if (user != null)
         {
-            if (user.Id == id)
-            {
-                return Ok(user);
-            }
+            return Ok(user);
         }
 
         return NotFound();
@@ -49,23 +47,17 @@ public class UsersController : ControllerBase
     [HttpPut("{id:int}")]
     public IActionResult Update(int id, User user)
     {
-        int idx = -1;
-        for (int i = 0; i < Users.Count; i++)
-        {
-            if (Users[i].Id == id)
-            {
-                idx = i;
-                break;
-            }
-        }
+        var initial = Users.FirstOrDefault(u => u.Id == id);
 
-        if (idx == -1)
+        if (initial == null)
         {
             return NotFound();
         }
 
-        user.Id = id;
-        Users[idx] = user;
+        initial.Name = user.Name;
+        initial.Email = user.Email;
+        initial.PasswordHash = user.PasswordHash;
+
         return NoContent();
     }
 
@@ -73,16 +65,15 @@ public class UsersController : ControllerBase
     [HttpDelete("{id:int}")]
     public IActionResult Delete(int id)
     {
-        for (int i = 0; i < Users.Count; i++)
+        var user = Users.FirstOrDefault(u => u.Id == id);
+        if (user == null)
         {
-            if (Users[i].Id == id)
-            {
-                Users.RemoveAt(i);
-                return NoContent();
-            }
+            return NotFound();
         }
 
-        return NotFound();
+        Users.Remove(user);
+
+        return NoContent();
     }
 
 }

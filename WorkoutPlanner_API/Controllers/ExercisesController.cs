@@ -26,13 +26,12 @@ public class ExercisesController : ControllerBase
     [HttpGet("{id:int}")]
     public ActionResult<Exercise> Get(int id)
     {
-        foreach (var exercise in Exercises)
+        var exercise = Exercises.FirstOrDefault(e => e.Id == id);
+        if (exercise != null)
         {
-            if (exercise.Id == id)
-            {
-                return Ok(exercise);
-            }
+            return Ok(exercise);
         }
+
         return NotFound();
     }
 
@@ -47,40 +46,28 @@ public class ExercisesController : ControllerBase
     [HttpPut("{id:int}")]
     public IActionResult Update(int id, Exercise exercise)
     {
-        int idx = -1;
-        for (int i = 0; i < Exercises.Count; i++)
-        {
-            if (Exercises[i].Id == id)
-            {
-                idx = i;
-                break;
-            }
-        }
-        if (idx == -1)
+        var initial = Exercises.FirstOrDefault(e => e.Id == id);
+        if (initial == null)
         {
             return NotFound();
         }
-        Exercises[idx] = exercise;
+        initial.Name = exercise.Name;
+        initial.Target = exercise.Target;
+        initial.Equipment = exercise.Equipment;
+
         return NoContent();
     }
 
     [HttpDelete("{id:int}")]
     public IActionResult Delete(int id)
     {
-        int idx = -1;
-        for (int i = 0; i < Exercises.Count; i++)
-        {
-            if (Exercises[i].Id == id)
-            {
-                idx = i;
-                break;
-            }
-        }
-        if (idx == -1)
+        var exercise = Exercises.FirstOrDefault(e => e.Id == id);
+        if (exercise == null)
         {
             return NotFound();
         }
-        Exercises.RemoveAt(idx);
+        Exercises.Remove(exercise);
+
         return NoContent();
     }
 }

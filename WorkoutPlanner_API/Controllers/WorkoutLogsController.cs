@@ -26,13 +26,13 @@ public class WorkoutLogsController : ControllerBase
     [HttpGet("{id:int}")]
     public ActionResult<WorkoutLog> Get(int id)
     {
-        foreach (var log in WorkoutLogs)
+        var log = WorkoutLogs.FirstOrDefault(w => w.Id == id);
+
+        if (log != null)
         {
-            if (log.Id == id)
-            {
-                return Ok(log);
-            }
+            return Ok(log);
         }
+
         return NotFound();
     }
 
@@ -53,24 +53,18 @@ public class WorkoutLogsController : ControllerBase
     [HttpPut("{id:int}")]
     public IActionResult Update(int id, WorkoutLog log)
     {
-        int idx = -1;
-        for (int i = 0; i < WorkoutLogs.Count; i++)
-        {
-            if (WorkoutLogs[i].Id == id)
-            {
-                idx = i;
-                break;
-            }
-        }
+        var initial = WorkoutLogs.FirstOrDefault(w => w.Id == id);
 
-        if (idx == -1)
+        if (initial == null)
         {
             return NotFound();
         }
 
-        log.Id = id;
-        WorkoutLogs[idx] = log;
-        return NoContent();
+        initial.RoutineId = log.RoutineId;
+        initial.Date = log.Date;
+        initial.Notes = log.Notes;
+
+        return Ok(initial);
     }
 
     /// <summary>
@@ -79,14 +73,15 @@ public class WorkoutLogsController : ControllerBase
     [HttpDelete("{id:int}")]
     public IActionResult Delete(int id)
     {
-        for (int i = 0; i < WorkoutLogs.Count; i++)
+        var log = WorkoutLogs.FirstOrDefault(w => w.Id == id);
+
+        if (log == null)
         {
-            if (WorkoutLogs[i].Id == id)
-            {
-                WorkoutLogs.RemoveAt(i);
-                return NoContent();
-            }
+            return NotFound();
         }
-        return NotFound();
+
+        WorkoutLogs.Remove(log);
+
+        return NoContent();
     }
 }
