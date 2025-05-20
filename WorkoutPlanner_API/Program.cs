@@ -1,55 +1,31 @@
-using System.Reflection;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
+using Microsoft.Extensions.Options;
+using WorkoutPlanner_API.Infrastructure.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-var swagger = builder.Configuration.GetSection("Swagger");
+builder.Services.AddOptions<SwaggerSettings>()
+    .BindConfiguration(SwaggerSettings.SectionName)
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
-builder.Services.AddSwaggerGen(c =>
-{
-    var version = swagger["Version"];
-    var title = swagger["Title"];
-    var description = swagger["Description"];
-
-    var contactSection = swagger.GetSection("Contact");
-    var licenseSection = swagger.GetSection("License");
-
-    c.SwaggerDoc(version, new OpenApiInfo
-    {
-        Version = version,
-        Title = title,
-        Description = description,
-        TermsOfService = UriOrNull(swagger["TermsOfService"]),
-        Contact = new OpenApiContact
-        {
-            Name = contactSection["Name"],
-            Url = UriOrNull(contactSection["Url"])
-        },
-        License = new OpenApiLicense
-        {
-            Name = licenseSection["Name"],
-            Url = UriOrNull(licenseSection["Url"])
-        }
-    });
-
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
-});
+builder.Services.AddSwaggerGen();
+builder.Services.ConfigureOptions<ConfigureSwaggerGenOptions>();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
+    var swagger = app.Services.GetRequiredService<IOptions<SwaggerSettings>>().Value;
     app.UseSwagger();
     app.UseSwaggerUI(ui =>
     {
-        var version = swagger["Version"];
-        var title = swagger["Title"];
-        ui.SwaggerEndpoint($"/swagger/{version}/swagger.json", $"{title} {version}");
+        ui.SwaggerEndpoint($"/swagger/{swagger.Version}/swagger.json",
+                           $"{swagger.Title} {swagger.Version}");
     });
 }
 
@@ -57,13 +33,3 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
-
-static Uri? UriOrNull(string? url)
-{
-    if (string.IsNullOrWhiteSpace(url))
-    {
-        return null;
-    }
-
-    return new Uri(url);
-}
