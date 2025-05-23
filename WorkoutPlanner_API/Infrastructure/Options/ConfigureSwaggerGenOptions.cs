@@ -32,6 +32,12 @@ public sealed class ConfigureSwaggerGenOptions : IConfigureOptions<SwaggerGenOpt
             }
         });
 
+        c.TagActionsBy(api => new[] {
+        api.ActionDescriptor.RouteValues["controller"]!});
+
+        c.DocInclusionPredicate((_, _) => true);
+
+
         // include XML comments if they exist
         var xml = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
         var path = Path.Combine(AppContext.BaseDirectory, xml);

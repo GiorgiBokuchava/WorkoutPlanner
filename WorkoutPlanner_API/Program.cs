@@ -22,7 +22,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-//     Resolve validated settings and wire up the UI
+    //     Resolve validated settings and wire up the UI
     var swaggerSettings = app.Services
                              .GetRequiredService<IOptions<SwaggerSettings>>()
                              .Value;
@@ -41,11 +41,3 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
-
-static Uri? UriOrNull(string? url)
-{
-    if (string.IsNullOrWhiteSpace(url))
-        return null;
-
-    return new Uri(url);
-}
