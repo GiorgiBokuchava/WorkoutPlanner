@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
-using System.ComponentModel.DataAnnotations;
 
 namespace WorkoutPlanner_API.Infrastructure.Options;
 
@@ -7,10 +6,8 @@ public sealed class SwaggerSettings
 {
     public const string SectionName = "Swagger";
 
-    [Required]
     public string Version { get; init; } = default!;
 
-    [Required]
     public string Title { get; init; } = default!;
 
     public string? Description { get; init; }

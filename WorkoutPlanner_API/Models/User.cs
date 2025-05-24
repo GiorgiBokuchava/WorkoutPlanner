@@ -1,11 +1,5 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
-
-namespace WorkoutPlanner_API.Models
+﻿namespace WorkoutPlanner_API.Models
 {
-    [Table("Users", Schema = "Identity")]
-    [Index(nameof(Email), IsUnique = true)]
     public class User
     {
         public int Id { get; set; }
@@ -15,7 +9,6 @@ namespace WorkoutPlanner_API.Models
 
         public string PasswordHash { get; set; } = string.Empty;
 
-        // navigation
         public ICollection<Routine> Routines { get; set; } = new List<Routine>();
         public ICollection<WorkoutLog> WorkoutLogs { get; set; } = new List<WorkoutLog>();
     }

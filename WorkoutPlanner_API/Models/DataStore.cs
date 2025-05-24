@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using WorkoutPlanner_API.Models;
+﻿using WorkoutPlanner_API.Models;
 
 namespace WorkoutPlanner_API.Data
 {
