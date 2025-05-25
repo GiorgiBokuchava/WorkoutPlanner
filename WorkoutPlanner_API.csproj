@@ -18,4 +18,14 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
 	</ItemGroup>
 
+
+	<ItemGroup>
+		<EditorConfigFiles Remove="C:\Users\giorg\source\repos\WorkoutPlanner_API\.editorconfig" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<None Include="C:\Users\giorg\source\repos\WorkoutPlanner_API\.editorconfig" />
+	</ItemGroup>
+
 </Project>
