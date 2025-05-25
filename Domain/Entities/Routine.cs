@@ -1,4 +1,4 @@
-﻿namespace WorkoutPlanner_API.Models
+﻿namespace WorkoutPlanner_API.Domain.Entities
 {
     public class Routine
     {

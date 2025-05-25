@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner_API.Data;
-using WorkoutPlanner_API.Models;
+using WorkoutPlanner_API.Domain.Entities;
 
 namespace WorkoutPlanner_API.Controllers
 {

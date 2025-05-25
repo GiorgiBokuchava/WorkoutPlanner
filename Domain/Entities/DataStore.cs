@@ -1,6 +1,4 @@
-﻿using WorkoutPlanner_API.Models;
-
-namespace WorkoutPlanner_API.Data
+﻿namespace WorkoutPlanner_API.Domain.Entities
 {
     public static class DataStore
     {

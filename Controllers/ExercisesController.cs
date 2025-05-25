@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner_API.Models;
-using static WorkoutPlanner_API.Data.DataStore;
+using WorkoutPlanner_API.Domain.Entities;
+using WorkoutPlanner_API.Application.Interfaces;
 
 namespace WorkoutPlanner_API.Controllers;
 
@@ -13,61 +13,52 @@ namespace WorkoutPlanner_API.Controllers;
 [Produces("application/json")]
 public class ExercisesController : ControllerBase
 {
-    /// <summary>
-    /// Returns all exercises
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet]
-    public ActionResult<IEnumerable<Exercise>> GetAll()
-    {
-        return Ok(Exercises);
-    }
+	private readonly IExerciseRepository _exercises;
 
-    [HttpGet("{id:int}")]
-    public ActionResult<Exercise> Get(int id)
-    {
-        var exercise = Exercises.FirstOrDefault(e => e.Id == id);
-        if (exercise != null)
-        {
-            return Ok(exercise);
-        }
+	public ExercisesController(IExerciseRepository exercises)
+	{
+		_exercises = exercises;
+	}
 
-        return NotFound();
-    }
+	/// <summary>
+	/// Returns all exercises
+	/// </summary>
+	/// <returns></returns>
+	[HttpGet]
+	public async Task<ActionResult<IEnumerable<Exercise>>> GetAll()
+	{
+		var exercises = await _exercises.GetAllExercisesAsync();
+		return Ok(exercises);
+	}
 
-    [HttpPost]
-    public ActionResult<Exercise> Create(Exercise exercise)
-    {
-        exercise.Id = Exercises.Count + 1;
-        Exercises.Add(exercise);
-        return CreatedAtAction(nameof(Get), new { id = exercise.Id }, exercise);
-    }
+	[HttpGet("{id:int}")]
+	public async Task<ActionResult<Exercise>> Get(int id)
+	{
+		var exercise = await _exercises.GetExerciseByIdAsync(id);
+		if (exercise == null)
+			return NotFound();
+		return Ok(exercise);
+	}
 
-    [HttpPut("{id:int}")]
-    public IActionResult Update(int id, Exercise exercise)
-    {
-        var initial = Exercises.FirstOrDefault(e => e.Id == id);
-        if (initial == null)
-        {
-            return NotFound();
-        }
-        initial.Name = exercise.Name;
-        initial.Target = exercise.Target;
-        initial.Equipment = exercise.Equipment;
+	[HttpPost]
+	public async Task<ActionResult<Exercise>> Create(Exercise exercise)
+	{
+		await _exercises.AddExerciseAsync(exercise);
+		return CreatedAtAction(nameof(Get), new { id = exercise.Id }, exercise);
+	}
 
-        return NoContent();
-    }
+	[HttpPut("{id:int}")]
+	public async Task<IActionResult> Update(int id, Exercise exercise)
+	{
+		exercise.Id = id;
+		await _exercises.UpdateExerciseAsync(exercise);
+		return NoContent();
+	}
 
-    [HttpDelete("{id:int}")]
-    public IActionResult Delete(int id)
-    {
-        var exercise = Exercises.FirstOrDefault(e => e.Id == id);
-        if (exercise == null)
-        {
-            return NotFound();
-        }
-        Exercises.Remove(exercise);
-
-        return NoContent();
-    }
+	[HttpDelete("{id:int}")]
+	public async Task<IActionResult> Delete(int id)
+	{
+		await _exercises.DeleteExerciseAsync(id);
+		return NoContent();
+	}
 }
