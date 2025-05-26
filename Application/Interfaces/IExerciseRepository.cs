@@ -1,15 +1,13 @@
-using WorkoutPlanner_API.Models;
+using WorkoutPlanner.Models;
 
-namespace WorkoutPlanner_API.Application.Interfaces
+namespace WorkoutPlanner.Application.Interfaces;
+public interface IExerciseRepository
 {
-	public interface IExerciseRepository
-	{
-		Task<Exercise?> GetExerciseByIdAsync(int exerciseId);
-		Task<IEnumerable<Exercise>> GetAllExercisesAsync();
-		Task AddExerciseAsync(Exercise exercise);
-		Task UpdateExerciseAsync(Exercise exercise);
-		Task DeleteExerciseAsync(int exerciseId);
-		Task<IEnumerable<Exercise>> GetExercisesByTargetAsync(string target);
-		Task<IEnumerable<Exercise>> GetExercisesByEquipmentAsync(string equipment);
-	}
+	Task<Exercise?> GetExerciseByIdAsync(int exerciseId);
+	Task<IEnumerable<Exercise>> GetAllExercisesAsync();
+	Task AddExerciseAsync(Exercise exercise);
+	Task UpdateExerciseAsync(Exercise exercise);
+	Task DeleteExerciseAsync(int exerciseId);
+	Task<IEnumerable<Exercise>> GetExercisesByTargetAsync(string target);
+	Task<IEnumerable<Exercise>> GetExercisesByEquipmentAsync(string equipment);
 }

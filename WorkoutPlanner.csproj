@@ -4,7 +4,8 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-
+		<RootNamespace>WorkoutPlanner</RootNamespace>
+		<AssemblyName>WorkoutPlanner</AssemblyName>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
@@ -17,12 +18,12 @@
 
 
 	<ItemGroup>
-	  <EditorConfigFiles Remove="C:\Users\giorg\source\repos\WorkoutPlanner_API\.editorconfig" />
+		<EditorConfigFiles Remove="C:\Users\giorg\source\repos\WorkoutPlanner\.editorconfig" />
 	</ItemGroup>
 
 
 	<ItemGroup>
-	  <None Include="C:\Users\giorg\source\repos\WorkoutPlanner_API\.editorconfig" />
+		<None Include="C:\Users\giorg\source\repos\WorkoutPlanner\.editorconfig" />
 	</ItemGroup>
 
 </Project>

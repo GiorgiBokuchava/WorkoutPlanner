@@ -3,9 +3,9 @@ using Infrastructure.Persistence;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
-using WorkoutPlanner_API.Application.Interfaces;
-using WorkoutPlanner_API.Infrastructure.Options;
-using WorkoutPlanner_API.Infrastructure.Persistance;
+using WorkoutPlanner.Application.Interfaces;
+using WorkoutPlanner.Infrastructure.Options;
+using WorkoutPlanner.Infrastructure.Persistance;
 
 var builder = WebApplication.CreateBuilder(args);
 

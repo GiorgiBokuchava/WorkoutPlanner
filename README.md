@@ -86,7 +86,7 @@ The API will be available at `https://localhost:5001` and the Swagger UI at `htt
 
 ## Architecture
 
-For an overview of the system architecture, review the [DB Diagram](https://dbdiagram.io/d/WorkoutPlanner_API-682cc88eb9f7446da3618091) which visualizes the relationships between the key data models in this project.
+For an overview of the system architecture, review the [DB Diagram](https://dbdiagram.io/d/WorkoutPlanner-682cc88eb9f7446da3618091) which visualizes the relationships between the key data models in this project.
 
 ## Development
 

@@ -1,14 +1,12 @@
-using WorkoutPlanner_API.Models;
+using WorkoutPlanner.Models;
 
-namespace Application.Interfaces
+namespace Application.Interfaces;
+public interface IUserRepository
 {
-	public interface IUserRepository
-	{
-		Task<User?> GetUserByIdAsync(int userId);
-		Task<User?> GetUserByEmailAsync(string email);
-		Task<IEnumerable<User>> GetAllUsersAsync();
-		Task AddUserAsync(User user);
-		Task UpdateUserAsync(User user);
-		Task DeleteUserAsync(int userId);
-	}
+	Task<User?> GetUserByIdAsync(int userId);
+	Task<User?> GetUserByEmailAsync(string email);
+	Task<IEnumerable<User>> GetAllUsersAsync();
+	Task AddUserAsync(User user);
+	Task UpdateUserAsync(User user);
+	Task DeleteUserAsync(int userId);
 }

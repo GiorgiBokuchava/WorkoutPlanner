@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner_API.Models;
-using static WorkoutPlanner_API.Data.DataStore;
+using WorkoutPlanner.Models;
+using static WorkoutPlanner.Data.DataStore;
 
-namespace WorkoutPlanner_API.Controllers;
+namespace WorkoutPlanner.Controllers;
 
 /// <summary>
 /// Basic CRUD operations for User resources
@@ -11,69 +11,69 @@ namespace WorkoutPlanner_API.Controllers;
 [Route("api/users")]
 public class UsersController : ControllerBase
 {
-    [HttpGet]
-    public IEnumerable<User> GetAll()
-    {
-        return Users;
-    }
+	[HttpGet]
+	public IEnumerable<User> GetAll()
+	{
+		return Users;
+	}
 
 
-    [HttpGet("{id:int}")]
-    public ActionResult<User> Get(int id)
-    {
-        var user = Users.FirstOrDefault(u => u.Id == id);
-        if (user != null)
-        {
-            return Ok(user);
-        }
+	[HttpGet("{id:int}")]
+	public ActionResult<User> Get(int id)
+	{
+		var user = Users.FirstOrDefault(u => u.Id == id);
+		if (user != null)
+		{
+			return Ok(user);
+		}
 
-        return NotFound();
-    }
+		return NotFound();
+	}
 
-    /// <summary>
-    /// Creates a new user
-    /// </summary>
-    /// <remarks>
-    /// The email must be unique but this demo does not validate it.
-    /// </remarks>
-    [HttpPost]
-    public ActionResult<User> Create(User user)
-    {
-        user.Id = Users.Count + 1;
-        Users.Add(user);
-        return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
-    }
+	/// <summary>
+	/// Creates a new user
+	/// </summary>
+	/// <remarks>
+	/// The email must be unique but this demo does not validate it.
+	/// </remarks>
+	[HttpPost]
+	public ActionResult<User> Create(User user)
+	{
+		user.Id = Users.Count + 1;
+		Users.Add(user);
+		return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
+	}
 
-    [HttpPut("{id:int}")]
-    public IActionResult Update(int id, User user)
-    {
-        var initial = Users.FirstOrDefault(u => u.Id == id);
+	[HttpPut("{id:int}")]
+	public IActionResult Update(int id, User user)
+	{
+		var initial = Users.FirstOrDefault(u => u.Id == id);
 
-        if (initial == null)
-        {
-            return NotFound();
-        }
+		if (initial == null)
+		{
+			return NotFound();
+		}
 
-        initial.Name = user.Name;
-        initial.Email = user.Email;
-        initial.PasswordHash = user.PasswordHash;
+		initial.Name = user.Name;
+		initial.Email = user.Email;
+		initial.PasswordHash = user.PasswordHash;
 
-        return NoContent();
-    }
+		return NoContent();
+	}
 
 
-    [HttpDelete("{id:int}")]
-    public IActionResult Delete(int id)
-    {
-        var user = Users.FirstOrDefault(u => u.Id == id);
-        if (user == null)
-        {
-            return NotFound();
-        }
+	[HttpDelete("{id:int}")]
+	public IActionResult Delete(int id)
+	{
+		var user = Users.FirstOrDefault(u => u.Id == id);
+		if (user == null)
+		{
+			return NotFound();
+		}
 
-        Users.Remove(user);
+		Users.Remove(user);
 
-        return NoContent();
-    }
+		return NoContent();
+	}
 
 }

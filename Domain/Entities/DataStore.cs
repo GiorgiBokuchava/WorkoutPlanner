@@ -1,16 +1,15 @@
-﻿using WorkoutPlanner_API.Models;
+﻿using WorkoutPlanner.Models;
 
-namespace WorkoutPlanner_API.Data
+namespace WorkoutPlanner.Data;
+
+public static class DataStore
 {
-    public static class DataStore
-    {
-        public static List<User> Users { get; } = new();
-        public static List<Exercise> Exercises { get; } = new();
-        public static List<Routine> Routines { get; } = new();
-        public static List<WorkoutLog> WorkoutLogs { get; } = new();
+	public static List<User> Users { get; } = new();
+	public static List<Exercise> Exercises { get; } = new();
+	public static List<Routine> Routines { get; } = new();
+	public static List<WorkoutLog> WorkoutLogs { get; } = new();
 
-        // for new junction tables:
-        public static List<RoutineExercise> RoutineExercises { get; } = new();
-        public static List<WorkoutExercise> WorkoutExercises { get; } = new();
-    }
+	// for new junction tables:
+	public static List<RoutineExercise> RoutineExercises { get; } = new();
+	public static List<WorkoutExercise> WorkoutExercises { get; } = new();
 }
