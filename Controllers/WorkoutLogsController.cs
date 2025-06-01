@@ -1,105 +1,123 @@
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner.Data;
-using WorkoutPlanner.Models;
+using WorkoutPlanner.Application.Interfaces;
+using WorkoutPlanner.Application.Services;
+using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
 
-/// <summary>
-/// Manages workout log operations
-/// </summary>
 [ApiController]
 [Route("api/workoutLogs")]
 [Produces("application/json")]
 public class WorkoutLogsController : ControllerBase
 {
-	/// <summary>
-	/// Gets all workout logs
-	/// </summary>
-	[HttpGet]
-	[ProducesResponseType(StatusCodes.Status200OK)]
-	public ActionResult<IEnumerable<WorkoutLog>> GetAll()
-		=> Ok(DataStore.WorkoutLogs);
+	private readonly IWorkoutLogService _service;
 
-	/// <summary>
-	/// Gets workout log by ID
-	/// </summary>
-	/// <param name="id">Workout log ID</param>
-	/// <response code="404">Log not found</response>
-	[HttpGet("{id:int}")]
-	[ProducesResponseType(StatusCodes.Status200OK)]
-	[ProducesResponseType(StatusCodes.Status404NotFound)]
-	public ActionResult<WorkoutLog> Get(int id)
+	public WorkoutLogsController(IWorkoutLogService service)
 	{
-		var log = DataStore.WorkoutLogs.FirstOrDefault(w => w.Id == id);
-		if (log == null) return NotFound();
-		return Ok(log);
+		_service = service;
 	}
 
 	/// <summary>
-	/// Gets all logs for a user
+	/// Gets all workout logs.
+	/// </summary>
+	[HttpGet]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	public async Task<ActionResult<IEnumerable<WorkoutLogDto>>> GetAll()
+	{
+		var list = await _service.GetAllWorkoutLogsAsync();
+		return Ok(list);
+	}
+
+	/// <summary>
+	/// Gets a workout log by its ID.
+	/// </summary>
+	/// <param name="id">Workout log ID</param>
+	[HttpGet("{id:int}")]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<WorkoutLogDto>> Get(int id)
+	{
+		try
+		{
+			var dto = await _service.GetWorkoutLogByIdAsync(id);
+			return Ok(dto);
+		}
+		catch (KeyNotFoundException)
+		{
+			return NotFound();
+		}
+	}
+
+	/// <summary>
+	/// Gets all logs for a specific user.
 	/// </summary>
 	/// <param name="userId">User ID</param>
 	[HttpGet("users/{userId:int}")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
-	public ActionResult<IEnumerable<WorkoutLog>> GetByUser(int userId)
-		=> Ok(DataStore.WorkoutLogs.Where(w => w.UserId == userId));
-
-	/// <summary>
-	/// Creates a workout log
-	/// </summary>
-	/// <param name="log">Workout log data</param>
-	/// <param name="userId">User ID</param>
-	/// <response code="400">Invalid request</response>
-	[HttpPost]
-	[ProducesResponseType(StatusCodes.Status201Created)]
-	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public ActionResult<WorkoutLog> Create(WorkoutLog log, [FromQuery] int userId)
+	public async Task<ActionResult<IEnumerable<WorkoutLogDto>>> GetByUser(int userId)
 	{
-		log.UserId = userId;
-		log.Id = DataStore.WorkoutLogs.Count + 1;
-		DataStore.WorkoutLogs.Add(log);
-		return CreatedAtAction(nameof(Get), new { id = log.Id }, log);
+		var list = await _service.GetWorkoutLogsByUserIdAsync(userId);
+		return Ok(list);
 	}
 
 	/// <summary>
-	/// Updates a workout log
+	/// Creates a new workout log.
 	/// </summary>
-	/// <param name="id">Log ID</param>
-	/// <param name="log">Updated data</param>
 	/// <param name="userId">User ID</param>
-	/// <response code="404">Log not found</response>
+	/// <param name="request">Workout log data</param>
+	[HttpPost]
+	[ProducesResponseType(StatusCodes.Status201Created)]
+	public async Task<ActionResult<WorkoutLogDto>> Create(
+		[FromQuery] int userId,
+		[FromBody] CreateWorkoutLogRequest request)
+	{
+		var created = await _service.CreateWorkoutLogAsync(userId, request);
+		return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+	}
+
+	/// <summary>
+	/// Updates an existing workout log.
+	/// </summary>
+	/// <param name="id">Workout log ID</param>
+	/// <param name="userId">User ID</param>
+	/// <param name="request">Updated data</param>
 	[HttpPut("{id:int}")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
-	public IActionResult Update(int id, WorkoutLog log, [FromQuery] int userId)
+	public async Task<IActionResult> Update(
+		int id,
+		[FromQuery] int userId,
+		[FromBody] CreateWorkoutLogRequest request)
 	{
-		var existing = DataStore.WorkoutLogs.FirstOrDefault(w => w.Id == id);
-		if (existing == null) return NotFound();
-
-		existing.UserId = userId;
-		existing.RoutineId = log.RoutineId;
-		existing.Date = log.Date;
-		existing.Notes = log.Notes;
-		return NoContent();
+		try
+		{
+			await _service.UpdateWorkoutLogAsync(id, request);
+			return NoContent();
+		}
+		catch (KeyNotFoundException)
+		{
+			return NotFound();
+		}
 	}
 
 	/// <summary>
-	/// Deletes a workout log
+	/// Deletes a workout log by its ID.
 	/// </summary>
-	/// <param name="id">Log ID</param>
-	/// <response code="404">Log not found</response>
+	/// <param name="id">Workout log ID</param>
 	[HttpDelete("{id:int}")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
-	public IActionResult Delete(int id)
+	public async Task<IActionResult> Delete(int id)
 	{
-		var existing = DataStore.WorkoutLogs.FirstOrDefault(w => w.Id == id);
-		if (existing == null) return NotFound();
-
-		DataStore.WorkoutLogs.Remove(existing);
-		return NoContent();
+		try
+		{
+			await _service.DeleteWorkoutLogAsync(id);
+			return NoContent();
+		}
+		catch (KeyNotFoundException)
+		{
+			return NotFound();
+		}
 	}
 }

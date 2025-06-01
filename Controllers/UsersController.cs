@@ -1,79 +1,88 @@
 using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner.Models;
-using static WorkoutPlanner.Data.DataStore;
+using WorkoutPlanner.Application.Services;
+using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
-
-/// <summary>
-/// Basic CRUD operations for User resources
-/// </summary>
 [ApiController]
 [Route("api/users")]
+[Produces("application/json")]
 public class UsersController : ControllerBase
 {
-	[HttpGet]
-	public IEnumerable<User> GetAll()
+	private readonly IUserService _service;
+
+	public UsersController(IUserService service)
 	{
-		return Users;
-	}
-
-
-	[HttpGet("{id:int}")]
-	public ActionResult<User> Get(int id)
-	{
-		var user = Users.FirstOrDefault(u => u.Id == id);
-		if (user != null)
-		{
-			return Ok(user);
-		}
-
-		return NotFound();
+		_service = service;
 	}
 
 	/// <summary>
-	/// Creates a new user
+	/// Retrieves all users.
 	/// </summary>
-	/// <remarks>
-	/// The email must be unique but this demo does not validate it.
-	/// </remarks>
+	[HttpGet]
+	public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
+	{
+		var list = await _service.GetAllUsersAsync();
+		return Ok(list);
+	}
+
+	/// <summary>
+	/// Retrieves a user by its ID.
+	/// </summary>
+	[HttpGet("{id:int}")]
+	public async Task<ActionResult<UserDto>> Get(int id)
+	{
+		try
+		{
+			var dto = await _service.GetUserByIdAsync(id);
+			return Ok(dto);
+		}
+		catch (KeyNotFoundException)
+		{
+			return NotFound();
+		}
+	}
+
+	/// <summary>
+	/// Creates a new user.
+	/// </summary>
 	[HttpPost]
-	public ActionResult<User> Create(User user)
+	public async Task<ActionResult<UserDto>> Create(CreateUserRequest request)
 	{
-		user.Id = Users.Count + 1;
-		Users.Add(user);
-		return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
+		var created = await _service.CreateUserAsync(request);
+		return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
 	}
 
+	/// <summary>
+	/// Updates an existing user.
+	/// </summary>
 	[HttpPut("{id:int}")]
-	public IActionResult Update(int id, User user)
+	public async Task<IActionResult> Update(int id, CreateUserRequest request)
 	{
-		var initial = Users.FirstOrDefault(u => u.Id == id);
-
-		if (initial == null)
+		try
+		{
+			await _service.UpdateUserAsync(id, request);
+			return NoContent();
+		}
+		catch (KeyNotFoundException)
 		{
 			return NotFound();
 		}
-
-		initial.Name = user.Name;
-		initial.Email = user.Email;
-		initial.PasswordHash = user.PasswordHash;
-
-		return NoContent();
 	}
 
-
+	/// <summary>
+	/// Deletes a user by its ID.
+	/// </summary>
 	[HttpDelete("{id:int}")]
-	public IActionResult Delete(int id)
+	public async Task<IActionResult> Delete(int id)
 	{
-		var user = Users.FirstOrDefault(u => u.Id == id);
-		if (user == null)
+		try
+		{
+			await _service.DeleteUserAsync(id);
+			return NoContent();
+		}
+		catch (KeyNotFoundException)
 		{
 			return NotFound();
 		}
-
-		Users.Remove(user);
-
-		return NoContent();
 	}
-
 }

@@ -1,4 +1,5 @@
-namespace WorkoutPlanner.Models;
+namespace WorkoutPlanner.Domain.Entities;
+
 public class RoutineExercise
 {
 	public int Id { get; set; }

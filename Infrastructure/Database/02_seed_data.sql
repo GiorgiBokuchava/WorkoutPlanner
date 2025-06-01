@@ -102,3 +102,23 @@ BEGIN
     VALUES (@BobLogId, @SquatId, 3, 5, 150.00);
 END
 GO
+
+-- Cascade‐delete from RoutineExercises -> Exercises
+ALTER TABLE [Workout].RoutineExercises
+DROP CONSTRAINT FK_RtEx_Exercise;
+
+ALTER TABLE [Workout].RoutineExercises
+ADD CONSTRAINT FK_RtEx_Exercise
+  FOREIGN KEY (exercise_id)
+  REFERENCES [Workout].Exercises(id)
+  ON DELETE CASCADE;
+
+-- Cascade‐delete from WorkoutExercises -> Exercises
+ALTER TABLE [Workout].WorkoutExercises
+DROP CONSTRAINT FK_WE_Exercise;
+
+ALTER TABLE [Workout].WorkoutExercises
+ADD CONSTRAINT FK_WE_Exercise
+  FOREIGN KEY (exercise_id)
+  REFERENCES [Workout].Exercises(id)
+  ON DELETE CASCADE;
