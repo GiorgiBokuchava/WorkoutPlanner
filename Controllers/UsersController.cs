@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner.Application.Services;
+using WorkoutPlanner.Application.Interfaces.Services;
 using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
@@ -31,15 +31,10 @@ public class UsersController : ControllerBase
 	[HttpGet("{id:int}")]
 	public async Task<ActionResult<UserDto>> Get(int id)
 	{
-		try
-		{
-			var dto = await _service.GetUserByIdAsync(id);
-			return Ok(dto);
-		}
-		catch (KeyNotFoundException)
-		{
+		var dto = await _service.GetUserByIdAsync(id);
+		if (dto is null)
 			return NotFound();
-		}
+		return Ok(dto);
 	}
 
 	/// <summary>
@@ -56,17 +51,12 @@ public class UsersController : ControllerBase
 	/// Updates an existing user.
 	/// </summary>
 	[HttpPut("{id:int}")]
-	public async Task<IActionResult> Update(int id, CreateUserRequest request)
+	public async Task<IActionResult> Update(int id, UpdateUserRequest request)
 	{
-		try
-		{
-			await _service.UpdateUserAsync(id, request);
-			return NoContent();
-		}
-		catch (KeyNotFoundException)
-		{
+		var updated = await _service.UpdateUserAsync(id, request);
+		if (!updated)
 			return NotFound();
-		}
+		return NoContent();
 	}
 
 	/// <summary>
@@ -75,14 +65,9 @@ public class UsersController : ControllerBase
 	[HttpDelete("{id:int}")]
 	public async Task<IActionResult> Delete(int id)
 	{
-		try
-		{
-			await _service.DeleteUserAsync(id);
-			return NoContent();
-		}
-		catch (KeyNotFoundException)
-		{
+		var deleted = await _service.DeleteUserAsync(id);
+		if (!deleted)
 			return NotFound();
-		}
+		return NoContent();
 	}
 }

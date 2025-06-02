@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner.Application.Services;
+using WorkoutPlanner.Application.Interfaces.Services;
 using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
@@ -31,15 +31,10 @@ public class RoutinesController : ControllerBase
 	[HttpGet("{id:int}")]
 	public async Task<ActionResult<RoutineDto>> Get(int id)
 	{
-		try
-		{
-			var dto = await _service.GetRoutineByIdAsync(id);
-			return Ok(dto);
-		}
-		catch (KeyNotFoundException)
-		{
+		var dto = await _service.GetRoutineByIdAsync(id);
+		if (dto is null)
 			return NotFound();
-		}
+		return Ok(dto);
 	}
 
 	/// <summary>
@@ -66,17 +61,12 @@ public class RoutinesController : ControllerBase
 	/// Updates an existing routine.
 	/// </summary>
 	[HttpPut("{id:int}")]
-	public async Task<IActionResult> Update(int id, CreateRoutineRequest request)
+	public async Task<IActionResult> Update(int id, UpdateRoutineRequest request)
 	{
-		try
-		{
-			await _service.UpdateRoutineAsync(id, request);
-			return NoContent();
-		}
-		catch (KeyNotFoundException)
-		{
+		var updated = await _service.UpdateRoutineAsync(id, request);
+		if (!updated)
 			return NotFound();
-		}
+		return NoContent();
 	}
 
 	/// <summary>
@@ -85,14 +75,9 @@ public class RoutinesController : ControllerBase
 	[HttpDelete("{id:int}")]
 	public async Task<IActionResult> Delete(int id)
 	{
-		try
-		{
-			await _service.DeleteRoutineAsync(id);
-			return NoContent();
-		}
-		catch (KeyNotFoundException)
-		{
+		var deleted = await _service.DeleteRoutineAsync(id);
+		if (!deleted)
 			return NotFound();
-		}
+		return NoContent();
 	}
 }

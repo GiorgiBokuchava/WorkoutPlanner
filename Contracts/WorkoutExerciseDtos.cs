@@ -8,6 +8,14 @@ public record CreateWorkoutExerciseRequest(
 	decimal? WeightUsed
 );
 
+public record UpdateWorkoutExerciseRequest(
+	int WorkoutLogId,
+	int ExerciseId,
+	int SetsCompleted,
+	int RepsCompleted,
+	decimal? WeightUsed
+);
+
 public record WorkoutExerciseDto(
 	int Id,
 	int WorkoutLogId,

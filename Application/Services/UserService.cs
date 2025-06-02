@@ -1,17 +1,9 @@
 ﻿using WorkoutPlanner.Contracts;
 using WorkoutPlanner.Domain.Entities;
-using Application.Interfaces;
+using WorkoutPlanner.Application.Interfaces.Repositories;
+using WorkoutPlanner.Application.Interfaces.Services;
 
 namespace WorkoutPlanner.Application.Services;
-
-public interface IUserService
-{
-	Task<IEnumerable<UserDto>> GetAllUsersAsync();
-	Task<UserDto> GetUserByIdAsync(int id);
-	Task<UserDto> CreateUserAsync(CreateUserRequest request);
-	Task UpdateUserAsync(int id, CreateUserRequest request);
-	Task DeleteUserAsync(int id);
-}
 
 public class UserService : IUserService
 {
@@ -28,10 +20,10 @@ public class UserService : IUserService
 		return users.Select(u => new UserDto(u.Id, u.Name, u.Email));
 	}
 
-	public async Task<UserDto> GetUserByIdAsync(int id)
+	public async Task<UserDto?> GetUserByIdAsync(int id)
 	{
 		var user = await _userRepository.GetUserByIdAsync(id);
-		if (user is null) throw new KeyNotFoundException($"User with ID {id} not found.");
+		if (user is null) return null;
 
 		return new UserDto(user.Id, user.Name, user.Email);
 	}
@@ -50,24 +42,27 @@ public class UserService : IUserService
 
 		return new UserDto(user.Id, user.Name, user.Email);
 	}
-	public async Task UpdateUserAsync(int id, CreateUserRequest request)
-	{
-		var updated = new User
-		{
-			Id = id,
-			Name = request.Name,
-			Email = request.Email,
-			PasswordHash = request.PasswordHash
-		};
 
-		await _userRepository.UpdateUserAsync(updated);
+	public async Task<bool> UpdateUserAsync(int id, UpdateUserRequest request)
+	{
+		var existing = await _userRepository.GetUserByIdAsync(id);
+		if (existing is null) return false;
+
+		existing.Name = request.Name;
+		existing.Email = request.Email;
+		existing.PasswordHash = request.PasswordHash;
+
+		await _userRepository.UpdateUserAsync(existing);
+		return true;
 	}
-	public async Task DeleteUserAsync(int id)
+
+	public async Task<bool> DeleteUserAsync(int id)
 	{
 		var existing = await _userRepository.GetUserByIdAsync(id);
 
-		if (existing is null) throw new KeyNotFoundException($"User with ID {id} not found.");
+		if (existing is null) return false;
 
 		await _userRepository.DeleteUserAsync(id);
+		return true;
 	}
 }

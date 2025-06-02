@@ -1,18 +1,9 @@
-﻿using WorkoutPlanner.Application.Interfaces;
+﻿using WorkoutPlanner.Application.Interfaces.Repositories;
+using WorkoutPlanner.Application.Interfaces.Services;
 using WorkoutPlanner.Contracts;
 using WorkoutPlanner.Domain.Entities;
 
 namespace WorkoutPlanner.Application.Services;
-
-public interface IRoutineExerciseService
-{
-	Task<IEnumerable<RoutineExerciseDto>> GetAllRoutineExercisesAsync();
-	Task<RoutineExerciseDto> GetRoutineExerciseByIdAsync(int id);
-	Task<IEnumerable<RoutineExerciseDto>> GetExercisesByRoutineIdAsync(int id);
-	Task<RoutineExerciseDto> CreateExerciseToRoutineAsync(CreateRoutineExerciseRequest request);
-	Task UpdateExerciseInRoutineAsync(int id, CreateRoutineExerciseRequest request);
-	Task DeleteExerciseFromRoutineAsync(int id);
-}
 
 public class RoutineExerciseService : IRoutineExerciseService
 {
@@ -40,11 +31,10 @@ public class RoutineExerciseService : IRoutineExerciseService
 			);
 	}
 
-	public async Task<RoutineExerciseDto> GetRoutineExerciseByIdAsync(int id)
+	public async Task<RoutineExerciseDto?> GetRoutineExerciseByIdAsync(int id)
 	{
 		var e = await _routineExerciseRepository.GetRoutineExerciseByIdAsync(id);
-		if (e is null)
-			throw new KeyNotFoundException($"RoutineExercise with ID {id} not found.");
+		if (e is null) return null;
 
 		return new RoutineExerciseDto(
 			e.Id,
@@ -94,23 +84,25 @@ public class RoutineExerciseService : IRoutineExerciseService
 		);
 	}
 
-	public async Task UpdateExerciseInRoutineAsync(int id, CreateRoutineExerciseRequest request)
+	public async Task<bool> UpdateExerciseInRoutineAsync(int id, UpdateRoutineExerciseRequest request)
 	{
-		var existing = await _routineExerciseRepository.GetRoutineExerciseByIdAsync(id)
-			?? throw new KeyNotFoundException($"RoutineExercise with ID {id} not found.");
+		var existing = await _routineExerciseRepository.GetRoutineExerciseByIdAsync(id);
+		if (existing is null) return false;
 
 		existing.Sets = request.Sets;
 		existing.RepsPerSet = request.RepsPerSet;
 		existing.Weight = request.Weight;
 
 		await _routineExerciseRepository.UpdateExerciseInRoutineAsync(existing);
+		return true;
 	}
 
-	public async Task DeleteExerciseFromRoutineAsync(int id)
+	public async Task<bool> DeleteExerciseFromRoutineAsync(int id)
 	{
-		var existing = await _routineExerciseRepository.GetRoutineExerciseByIdAsync(id)
-			?? throw new KeyNotFoundException($"RoutineExercise with ID {id} not found.");
+		var existing = await _routineExerciseRepository.GetRoutineExerciseByIdAsync(id);
+		if (existing is null) return false;
 
 		await _routineExerciseRepository.DeleteExerciseFromRoutineAsync(existing.ExerciseId, existing.RoutineId);
+		return true;
 	}
 }

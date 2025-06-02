@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner.Application.Interfaces;
-using WorkoutPlanner.Application.Services;
+using WorkoutPlanner.Application.Interfaces.Services;
 using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
@@ -38,15 +36,10 @@ public class WorkoutLogsController : ControllerBase
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	public async Task<ActionResult<WorkoutLogDto>> Get(int id)
 	{
-		try
-		{
-			var dto = await _service.GetWorkoutLogByIdAsync(id);
-			return Ok(dto);
-		}
-		catch (KeyNotFoundException)
-		{
+		var dto = await _service.GetWorkoutLogByIdAsync(id);
+		if (dto is null)
 			return NotFound();
-		}
+		return Ok(dto);
 	}
 
 	/// <summary>
@@ -88,17 +81,12 @@ public class WorkoutLogsController : ControllerBase
 	public async Task<IActionResult> Update(
 		int id,
 		[FromQuery] int userId,
-		[FromBody] CreateWorkoutLogRequest request)
+		[FromBody] UpdateWorkoutLogRequest request)
 	{
-		try
-		{
-			await _service.UpdateWorkoutLogAsync(id, request);
-			return NoContent();
-		}
-		catch (KeyNotFoundException)
-		{
+		var updated = await _service.UpdateWorkoutLogAsync(id, request);
+		if (!updated)
 			return NotFound();
-		}
+		return NoContent();
 	}
 
 	/// <summary>
@@ -110,14 +98,9 @@ public class WorkoutLogsController : ControllerBase
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	public async Task<IActionResult> Delete(int id)
 	{
-		try
-		{
-			await _service.DeleteWorkoutLogAsync(id);
-			return NoContent();
-		}
-		catch (KeyNotFoundException)
-		{
+		var deleted = await _service.DeleteWorkoutLogAsync(id);
+		if (!deleted)
 			return NotFound();
-		}
+		return NoContent();
 	}
 }

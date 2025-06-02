@@ -6,6 +6,12 @@ public record CreateExerciseRequest(
 	string Target
 );
 
+public record UpdateExerciseRequest(
+	string Name,
+	string Equipment,
+	string Target
+);
+
 public record ExerciseDto
 (
 	int Id,

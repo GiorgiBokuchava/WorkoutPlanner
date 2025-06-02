@@ -1,6 +1,6 @@
 using WorkoutPlanner.Domain.Entities;
 
-namespace WorkoutPlanner.Application.Interfaces;
+namespace WorkoutPlanner.Application.Interfaces.Repositories;
 public interface IExerciseRepository
 {
 	Task<Exercise?> GetExerciseByIdAsync(int exerciseId);

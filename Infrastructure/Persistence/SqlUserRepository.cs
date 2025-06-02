@@ -1,7 +1,7 @@
-using Application.Interfaces;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using WorkoutPlanner.Application.Interfaces.Repositories;
 using WorkoutPlanner.Domain.Entities;
 
 namespace WorkoutPlanner.Infrastructure.Persistence;

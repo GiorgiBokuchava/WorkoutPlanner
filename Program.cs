@@ -1,7 +1,7 @@
-using Application.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using WorkoutPlanner.Application.Interfaces;
+using WorkoutPlanner.Application.Interfaces.Repositories;
+using WorkoutPlanner.Application.Interfaces.Services;
 using WorkoutPlanner.Application.Services;
 using WorkoutPlanner.Infrastructure.Options;
 using WorkoutPlanner.Infrastructure.Persistance;

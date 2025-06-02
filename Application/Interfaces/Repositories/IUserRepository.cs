@@ -1,6 +1,6 @@
 using WorkoutPlanner.Domain.Entities;
 
-namespace Application.Interfaces;
+namespace WorkoutPlanner.Application.Interfaces.Repositories;
 public interface IUserRepository
 {
 	Task<IEnumerable<User>> GetAllUsersAsync();

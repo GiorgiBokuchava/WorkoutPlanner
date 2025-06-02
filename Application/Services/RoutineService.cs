@@ -1,18 +1,9 @@
-﻿using WorkoutPlanner.Application.Interfaces;
+﻿using WorkoutPlanner.Application.Interfaces.Repositories;
+using WorkoutPlanner.Application.Interfaces.Services;
 using WorkoutPlanner.Contracts;
 using WorkoutPlanner.Domain.Entities;
 
 namespace WorkoutPlanner.Application.Services;
-
-public interface IRoutineService
-{
-	Task<IEnumerable<RoutineDto>> GetAllRoutinesAsync();
-	Task<RoutineDto?> GetRoutineByIdAsync(int id);
-	Task<RoutineDto> CreateRoutineAsync(CreateRoutineRequest req);
-	Task UpdateRoutineAsync(int id, CreateRoutineRequest req);
-	Task DeleteRoutineAsync(int id);
-	Task<IEnumerable<RoutineDto>> GetRoutineByUserIdAsync(int userId);
-}
 
 public class RoutineService : IRoutineService
 {
@@ -51,25 +42,26 @@ public class RoutineService : IRoutineService
 		return new RoutineDto(routine.Id, routine.UserId, routine.Title, routine.FrequencyPerWeek, routine.Difficulty);
 	}
 
-	public async Task UpdateRoutineAsync(int id, CreateRoutineRequest req)
+	public async Task<bool> UpdateRoutineAsync(int id, UpdateRoutineRequest req)
 	{
-		var existing = await _routineRepository.GetRoutineByIdAsync(id)
-			?? throw new KeyNotFoundException($"Routine with ID {id} not found.");
+		var existing = await _routineRepository.GetRoutineByIdAsync(id);
+		if (existing is null) return false;
 
 		existing.Title = req.Title;
 		existing.FrequencyPerWeek = req.FrequencyPerWeek;
 		existing.Difficulty = req.Difficulty;
 
 		await _routineRepository.UpdateRoutineAsync(existing);
+		return true;
 	}
 
-	public async Task DeleteRoutineAsync(int id)
+	public async Task<bool> DeleteRoutineAsync(int id)
 	{
 		var existing = await _routineRepository.GetRoutineByIdAsync(id);
-
-		if (existing is null) throw new KeyNotFoundException($"Routine with ID {id} not found.");
+		if (existing is null) return false;
 
 		await _routineRepository.DeleteRoutineAsync(id);
+		return true;
 	}
 
 	public async Task<IEnumerable<RoutineDto>> GetRoutineByUserIdAsync(int userId)

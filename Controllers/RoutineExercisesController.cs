@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner.Application.Services;
+using WorkoutPlanner.Application.Interfaces.Services;
 using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
@@ -31,15 +31,10 @@ public class RoutineExercisesController : ControllerBase
 	[HttpGet("{id:int}")]
 	public async Task<ActionResult<RoutineExerciseDto>> Get(int id)
 	{
-		try
-		{
-			var dto = await _service.GetRoutineExerciseByIdAsync(id);
-			return Ok(dto);
-		}
-		catch (KeyNotFoundException)
-		{
+		var dto = await _service.GetRoutineExerciseByIdAsync(id);
+		if (dto is null)
 			return NotFound();
-		}
+		return Ok(dto);
 	}
 
 	/// <summary>
@@ -56,17 +51,12 @@ public class RoutineExercisesController : ControllerBase
 	/// Updates an existing routine-exercise link.
 	/// </summary>
 	[HttpPut("{id:int}")]
-	public async Task<IActionResult> Update(int id, CreateRoutineExerciseRequest request)
+	public async Task<IActionResult> Update(int id, UpdateRoutineExerciseRequest request)
 	{
-		try
-		{
-			await _service.UpdateExerciseInRoutineAsync(id, request);
-			return NoContent();
-		}
-		catch (KeyNotFoundException)
-		{
+		var updated = await _service.UpdateExerciseInRoutineAsync(id, request);
+		if (!updated)
 			return NotFound();
-		}
+		return NoContent();
 	}
 
 	/// <summary>
@@ -75,14 +65,9 @@ public class RoutineExercisesController : ControllerBase
 	[HttpDelete("{id:int}")]
 	public async Task<IActionResult> Delete(int id)
 	{
-		try
-		{
-			await _service.DeleteExerciseFromRoutineAsync(id);
-			return NoContent();
-		}
-		catch (KeyNotFoundException)
-		{
+		var deleted = await _service.DeleteExerciseFromRoutineAsync(id);
+		if (!deleted)
 			return NotFound();
-		}
+		return NoContent();
 	}
 }

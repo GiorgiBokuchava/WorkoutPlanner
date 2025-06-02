@@ -1,17 +1,9 @@
 ﻿using WorkoutPlanner.Domain.Entities;
-using WorkoutPlanner.Application.Interfaces;
 using WorkoutPlanner.Contracts;
+using WorkoutPlanner.Application.Interfaces.Repositories;
+using WorkoutPlanner.Application.Interfaces.Services;
 
 namespace WorkoutPlanner.Application.Services;
-
-public interface IExerciseService
-{
-	Task<IEnumerable<ExerciseDto>> GetAllExercisesAsync();
-	Task<ExerciseDto> GetExerciseByIdAsync(int id);
-	Task<ExerciseDto> CreateExerciseAsync(CreateExerciseRequest request);
-	Task UpdateExerciseAsync(int id, CreateExerciseRequest request);
-	Task DeleteExerciseAsync(int id);
-}
 
 public class ExerciseService : IExerciseService
 {
@@ -28,10 +20,10 @@ public class ExerciseService : IExerciseService
 		return exercises.Select(e => new ExerciseDto(e.Id, e.Name, e.Equipment, e.Target));
 	}
 
-	public async Task<ExerciseDto> GetExerciseByIdAsync(int id)
+	public async Task<ExerciseDto?> GetExerciseByIdAsync(int id)
 	{
 		var exercise = await _exerciseRepository.GetExerciseByIdAsync(id);
-		if (exercise is null) throw new KeyNotFoundException($"Exercise with ID {id} not found.");
+		if (exercise is null) return null;
 
 		return new ExerciseDto(exercise.Id, exercise.Name, exercise.Equipment, exercise.Target);
 	}
@@ -50,25 +42,26 @@ public class ExerciseService : IExerciseService
 		return new ExerciseDto(exercise.Id, exercise.Name, exercise.Equipment, exercise.Target);
 	}
 
-	public async Task UpdateExerciseAsync(int id, CreateExerciseRequest request)
+	public async Task<bool> UpdateExerciseAsync(int id, UpdateExerciseRequest request)
 	{
-		var updated = new Exercise
-		{
-			Id = id,
-			Name = request.Name,
-			Equipment = request.Equipment,
-			Target = request.Target
-		};
+		var existing = await _exerciseRepository.GetExerciseByIdAsync(id);
+		if (existing is null) return false;
 
-		await _exerciseRepository.UpdateExerciseAsync(updated);
+		existing.Name = request.Name;
+		existing.Equipment = request.Equipment;
+		existing.Target = request.Target;
+
+		await _exerciseRepository.UpdateExerciseAsync(existing);
+		return true;
 	}
 
-	public async Task DeleteExerciseAsync(int id)
+	public async Task<bool> DeleteExerciseAsync(int id)
 	{
 		var existing = await _exerciseRepository.GetExerciseByIdAsync(id);
 
-		if (existing is null) throw new KeyNotFoundException($"Exercise with ID {id} not found.");
+		if (existing is null) return false;
 
 		await _exerciseRepository.DeleteExerciseAsync(id);
+		return true;
 	}
 }

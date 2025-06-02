@@ -1,18 +1,9 @@
-﻿using WorkoutPlanner.Application.Interfaces;
+﻿using WorkoutPlanner.Application.Interfaces.Repositories;
+using WorkoutPlanner.Application.Interfaces.Services;
 using WorkoutPlanner.Contracts;
 using WorkoutPlanner.Domain.Entities;
 
 namespace WorkoutPlanner.Application.Services;
-
-public interface IWorkoutLogService
-{
-	Task<IEnumerable<WorkoutLogDto>> GetAllWorkoutLogsAsync();
-	Task<WorkoutLogDto> GetWorkoutLogByIdAsync(int id);
-	Task<WorkoutLogDto> CreateWorkoutLogAsync(int userId, CreateWorkoutLogRequest request);
-	Task UpdateWorkoutLogAsync(int id, CreateWorkoutLogRequest request);
-	Task DeleteWorkoutLogAsync(int id);
-	Task<IEnumerable<WorkoutLogDto>> GetWorkoutLogsByUserIdAsync(int userId);
-}
 
 public class WorkoutLogService : IWorkoutLogService
 {
@@ -34,18 +25,14 @@ public class WorkoutLogService : IWorkoutLogService
 		));
 	}
 
-	public async Task<WorkoutLogDto> GetWorkoutLogByIdAsync(int id)
+	public async Task<WorkoutLogDto?> GetWorkoutLogByIdAsync(int id)
 	{
-		var entity = await _workoutLogRepository.GetWorkoutLogByIdAsync(id);
-		if (entity == null) throw new KeyNotFoundException($"Workout log with ID {id} not found.");
-		return new WorkoutLogDto(
-			entity.Id,
-			entity.UserId,
-			entity.RoutineId,
-			entity.Date,
-			entity.Notes
-		);
+		var log = await _workoutLogRepository.GetWorkoutLogByIdAsync(id);
+		if (log is null) return null;
+
+		return new WorkoutLogDto(log.Id, log.UserId, log.RoutineId, log.Date, log.Notes);
 	}
+
 	public async Task<WorkoutLogDto> CreateWorkoutLogAsync(int userId, CreateWorkoutLogRequest request)
 	{
 		var workoutLog = new WorkoutLog
@@ -65,27 +52,26 @@ public class WorkoutLogService : IWorkoutLogService
 			workoutLog.Notes
 		);
 	}
-	public async Task UpdateWorkoutLogAsync(int id, CreateWorkoutLogRequest request)
+	public async Task<bool> UpdateWorkoutLogAsync(int id, UpdateWorkoutLogRequest request)
 	{
-		var existing = await _workoutLogRepository.GetWorkoutLogByIdAsync(id) ?? throw new KeyNotFoundException($"Workout log with ID {id} not found.");
+		var existing = await _workoutLogRepository.GetWorkoutLogByIdAsync(id);
+		if (existing is null) return false;
 
-		var updated = new WorkoutLog
-		{
-			Id = id,
-			RoutineId = request.RoutineId,
-			Date = request.Date,
-			Notes = request.Notes ?? string.Empty
-		};
+		existing.RoutineId = request.RoutineId;
+		existing.Date = request.Date;
+		existing.Notes = request.Notes ?? string.Empty;
 
-		await _workoutLogRepository.UpdateWorkoutLogAsync(updated);
+		await _workoutLogRepository.UpdateWorkoutLogAsync(existing);
+		return true;
 	}
 
-	public async Task DeleteWorkoutLogAsync(int id)
+	public async Task<bool> DeleteWorkoutLogAsync(int id)
 	{
-		var existingLog = await _workoutLogRepository.GetWorkoutLogByIdAsync(id)
-			?? throw new KeyNotFoundException($"Workout log with ID {id} not found.");
+		var existing = await _workoutLogRepository.GetWorkoutLogByIdAsync(id);
+		if (existing is null) return false;
 
 		await _workoutLogRepository.DeleteWorkoutLogAsync(id);
+		return true;
 	}
 
 	public async Task<IEnumerable<WorkoutLogDto>> GetWorkoutLogsByUserIdAsync(int userId)

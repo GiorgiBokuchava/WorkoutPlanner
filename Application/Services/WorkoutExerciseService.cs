@@ -1,17 +1,9 @@
 ﻿using WorkoutPlanner.Contracts;
 using WorkoutPlanner.Domain.Entities;
-using WorkoutPlanner.Application.Interfaces;
+using WorkoutPlanner.Application.Interfaces.Repositories;
+using WorkoutPlanner.Application.Interfaces.Services;
 
 namespace WorkoutPlanner.Application.Services;
-
-public interface IWorkoutExerciseService
-{
-	Task<IEnumerable<WorkoutExerciseDto>> GetAllWorkoutExercisesAsync();
-	Task<WorkoutExerciseDto> GetWorkoutExerciseByIdAsync(int id);
-	Task<WorkoutExerciseDto> CreateWorkoutExerciseAsync(CreateWorkoutExerciseRequest request);
-	Task UpdateWorkoutExerciseAsync(int id, CreateWorkoutExerciseRequest request);
-	Task DeleteWorkoutExerciseAsync(int id);
-}
 
 public class WorkoutExerciseService : IWorkoutExerciseService
 {
@@ -34,23 +26,23 @@ public class WorkoutExerciseService : IWorkoutExerciseService
 			e.WeightUsed
 		));
 	}
-	public async Task<WorkoutExerciseDto> GetWorkoutExerciseByIdAsync(int id)
+
+	public async Task<WorkoutExerciseDto?> GetWorkoutExerciseByIdAsync(int id)
 	{
 		var exercise = await _workoutExerciseRepository.GetWorkoutExerciseByIdAsync(id);
-		if (exercise is null) throw new
-				KeyNotFoundException($"Workout exercise with ID {id} not found.");
+		if (exercise is null) return null;
 
 		return new WorkoutExerciseDto(
-				exercise.Id,
-				exercise.WorkoutLogId,
-				exercise.ExerciseId,
-				exercise.SetsCompleted,
-				exercise.RepsCompleted,
-				exercise.WeightUsed
-			);
+			exercise.Id,
+			exercise.WorkoutLogId,
+			exercise.ExerciseId,
+			exercise.SetsCompleted,
+			exercise.RepsCompleted,
+			exercise.WeightUsed
+		);
 	}
-	public async Task<WorkoutExerciseDto>
-		CreateWorkoutExerciseAsync(CreateWorkoutExerciseRequest request)
+
+	public async Task<WorkoutExerciseDto> CreateWorkoutExerciseAsync(CreateWorkoutExerciseRequest request)
 	{
 		var workoutExercise = new WorkoutExercise
 		{
@@ -72,10 +64,11 @@ public class WorkoutExerciseService : IWorkoutExerciseService
 			workoutExercise.WeightUsed
 		);
 	}
-	public async Task UpdateWorkoutExerciseAsync(int id, CreateWorkoutExerciseRequest request)
+
+	public async Task<bool> UpdateWorkoutExerciseAsync(int id, UpdateWorkoutExerciseRequest request)
 	{
-		var existing = await _workoutExerciseRepository.GetWorkoutExerciseByIdAsync(id)
-			?? throw new KeyNotFoundException($"Workout exercise with ID {id} not found.");
+		var existing = await _workoutExerciseRepository.GetWorkoutExerciseByIdAsync(id);
+		if (existing is null) return false;
 
 		var updatedExercise = new WorkoutExercise
 		{
@@ -88,14 +81,15 @@ public class WorkoutExerciseService : IWorkoutExerciseService
 		};
 
 		await _workoutExerciseRepository.UpdateExerciseInWorkoutLogAsync(updatedExercise);
+		return true;
 	}
 
-	public async Task DeleteWorkoutExerciseAsync(int id)
+	public async Task<bool> DeleteWorkoutExerciseAsync(int id)
 	{
-		var existing = await _workoutExerciseRepository.GetWorkoutExerciseByIdAsync(id)
-			?? throw new KeyNotFoundException($"Workout exercise with ID {id} not found.");
+		var existing = await _workoutExerciseRepository.GetWorkoutExerciseByIdAsync(id);
+		if (existing is null) return false;
 
-		await _workoutExerciseRepository.
-			DeleteExerciseFromWorkoutLogAsync(existing.ExerciseId, existing.WorkoutLogId);
+		await _workoutExerciseRepository.DeleteExerciseFromWorkoutLogAsync(existing.ExerciseId, existing.WorkoutLogId);
+		return true;
 	}
 }
