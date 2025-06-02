@@ -1,11 +1,12 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using WorkoutPlanner.Application.Interfaces.Repositories;
 using WorkoutPlanner.Application.Interfaces.Services;
 using WorkoutPlanner.Application.Services;
 using WorkoutPlanner.Infrastructure.Options;
 using WorkoutPlanner.Infrastructure.Persistance;
 using WorkoutPlanner.Infrastructure.Persistence;
-using WorkoutPlanner.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
