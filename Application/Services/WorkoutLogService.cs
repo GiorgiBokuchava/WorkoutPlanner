@@ -1,4 +1,4 @@
-﻿using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Application.Interfaces.Services;
 using WorkoutPlanner.Contracts;
 using WorkoutPlanner.Domain.Entities;
 using WorkoutPlanner.Infrastructure.Repositories;
