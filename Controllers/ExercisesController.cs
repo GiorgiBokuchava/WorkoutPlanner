@@ -1,73 +1,83 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner.Models;
-using static WorkoutPlanner.Data.DataStore;
+using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
-
-/// <summary>
-/// CRUD operations for Exercise resources
-/// </summary>
 [ApiController]
 [Route("api/exercises")]
 [Produces("application/json")]
 public class ExercisesController : ControllerBase
 {
+	private readonly IExerciseService _service;
+
+	public ExercisesController(IExerciseService service)
+	{
+		_service = service;
+	}
+
 	/// <summary>
-	/// Returns all exercises
+	/// Gets all exercises.
 	/// </summary>
-	/// <returns></returns>
+	/// <returns>A list of exercise DTOs.</returns>
 	[HttpGet]
-	public ActionResult<IEnumerable<Exercise>> GetAll()
+	public async Task<ActionResult<IEnumerable<ExerciseDto>>> GetAll()
 	{
-		return Ok(Exercises);
+		var list = await _service.GetAllExercisesAsync();
+		return Ok(list);
 	}
 
+	/// <summary>
+	/// Gets a specific exercise by its ID.
+	/// </summary>
+	/// <param name="id">The ID of the exercise.</param>
+	/// <returns>The exercise DTO if found; otherwise, NotFound.</returns>
 	[HttpGet("{id:int}")]
-	public ActionResult<Exercise> Get(int id)
+	public async Task<ActionResult<ExerciseDto>> Get(int id)
 	{
-		var exercise = Exercises.FirstOrDefault(e => e.Id == id);
-		if (exercise != null)
-		{
-			return Ok(exercise);
-		}
-
-		return NotFound();
-	}
-
-	[HttpPost]
-	public ActionResult<Exercise> Create(Exercise exercise)
-	{
-		exercise.Id = Exercises.Count + 1;
-		Exercises.Add(exercise);
-		return CreatedAtAction(nameof(Get), new { id = exercise.Id }, exercise);
-	}
-
-	[HttpPut("{id:int}")]
-	public IActionResult Update(int id, Exercise exercise)
-	{
-		var initial = Exercises.FirstOrDefault(e => e.Id == id);
-		if (initial == null)
-		{
+		var ex = await _service.GetExerciseByIdAsync(id);
+		if (ex is null)
 			return NotFound();
-		}
-		initial.Name = exercise.Name;
-		initial.Target = exercise.Target;
-		initial.Equipment = exercise.Equipment;
+		return Ok(ex);
+	}
 
+	/// <summary>
+	/// Creates a new exercise.
+	/// </summary>
+	/// <param name="request">The exercise creation request.</param>
+	/// <returns>The created exercise DTO.</returns>
+	[HttpPost]
+	public async Task<ActionResult<ExerciseDto>> Create(CreateExerciseRequest request)
+	{
+		var created = await _service.CreateExerciseAsync(request);
+		return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+	}
+
+	/// <summary>
+	/// Updates an existing exercise.
+	/// </summary>
+	/// <param name="id">The ID of the exercise to update.</param>
+	/// <param name="request">The updated exercise data.</param>
+	/// <returns>No content if successful; otherwise, NotFound.</returns>
+	[HttpPut("{id:int}")]
+	public async Task<IActionResult> Update(int id, UpdateExerciseRequest request)
+	{
+		var updated = await _service.UpdateExerciseAsync(id, request);
+		if (!updated)
+			return NotFound();
 		return NoContent();
 	}
 
+	/// <summary>
+	/// Deletes an exercise by its ID.
+	/// </summary>
+	/// <param name="id">The ID of the exercise to delete.</param>
+	/// <returns>No content if successful; otherwise, NotFound.</returns>
 	[HttpDelete("{id:int}")]
-	public IActionResult Delete(int id)
+	public async Task<IActionResult> Delete(int id)
 	{
-		var exercise = Exercises.FirstOrDefault(e => e.Id == id);
-		if (exercise == null)
-		{
+		var deleted = await _service.DeleteExerciseAsync(id);
+		if (!deleted)
 			return NotFound();
-		}
-		Exercises.Remove(exercise);
-
 		return NoContent();
 	}
 }

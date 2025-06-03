@@ -1,60 +1,83 @@
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner.Data;
-using WorkoutPlanner.Models;
+using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
-
 [ApiController]
 [Route("api/routines")]
+[Produces("application/json")]
 public class RoutinesController : ControllerBase
 {
+	private readonly IRoutineService _service;
+
+	public RoutinesController(IRoutineService service)
+	{
+		_service = service;
+	}
+
+	/// <summary>
+	/// Retrieves all routines.
+	/// </summary>
 	[HttpGet]
-	public ActionResult<IEnumerable<Routine>> GetAll()
-		=> Ok(DataStore.Routines);
+	public async Task<ActionResult<IEnumerable<RoutineDto>>> GetAll()
+	{
+		var list = await _service.GetAllRoutinesAsync();
+		return Ok(list);
+	}
 
+	/// <summary>
+	/// Retrieves a routine by its ID.
+	/// </summary>
 	[HttpGet("{id:int}")]
-	public ActionResult<Routine> Get(int id)
+	public async Task<ActionResult<RoutineDto>> Get(int id)
 	{
-		var routine = DataStore.Routines.FirstOrDefault(r => r.Id == id);
-		if (routine == null) return NotFound();
-		return Ok(routine);
+		var dto = await _service.GetRoutineByIdAsync(id);
+		if (dto is null)
+			return NotFound();
+		return Ok(dto);
 	}
 
+	/// <summary>
+	/// Retrieves all routines for a specific user.
+	/// </summary>
 	[HttpGet("users/{userId:int}")]
-	public ActionResult<IEnumerable<Routine>> GetByUser(int userId)
-		=> Ok(DataStore.Routines.Where(r => r.UserId == userId));
-
-	[HttpPost]
-	public ActionResult<Routine> Create(Routine routine, [FromQuery] int userId)
+	public async Task<ActionResult<IEnumerable<RoutineDto>>> GetByUser(int userId)
 	{
-		routine.UserId = userId;
-		routine.Id = DataStore.Routines.Count + 1;
-		DataStore.Routines.Add(routine);
-		return CreatedAtAction(nameof(Get), new { id = routine.Id }, routine);
+		var list = await _service.GetRoutineByUserIdAsync(userId);
+		return Ok(list);
 	}
 
-	[HttpPut("{id:int}")]
-	public IActionResult Update(int id, Routine routine, [FromQuery] int userId)
+	/// <summary>
+	/// Creates a new routine.
+	/// </summary>
+	[HttpPost]
+	public async Task<ActionResult<RoutineDto>> Create(CreateRoutineRequest request)
 	{
-		var existing = DataStore.Routines.FirstOrDefault(r => r.Id == id);
-		if (existing == null) return NotFound();
+		var created = await _service.CreateRoutineAsync(request);
+		return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+	}
 
-		existing.UserId = userId;
-		existing.Title = routine.Title;
-		existing.FrequencyPerWeek = routine.FrequencyPerWeek;
-		existing.Difficulty = routine.Difficulty;
+	/// <summary>
+	/// Updates an existing routine.
+	/// </summary>
+	[HttpPut("{id:int}")]
+	public async Task<IActionResult> Update(int id, UpdateRoutineRequest request)
+	{
+		var updated = await _service.UpdateRoutineAsync(id, request);
+		if (!updated)
+			return NotFound();
 		return NoContent();
 	}
 
+	/// <summary>
+	/// Deletes a routine by its ID.
+	/// </summary>
 	[HttpDelete("{id:int}")]
-	public IActionResult Delete(int id)
+	public async Task<IActionResult> Delete(int id)
 	{
-		var existing = DataStore.Routines.FirstOrDefault(r => r.Id == id);
-		if (existing == null) return NotFound();
-
-		DataStore.Routines.Remove(existing);
+		var deleted = await _service.DeleteRoutineAsync(id);
+		if (!deleted)
+			return NotFound();
 		return NoContent();
 	}
 }

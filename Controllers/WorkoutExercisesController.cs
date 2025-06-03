@@ -1,56 +1,73 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner.Data;
-using WorkoutPlanner.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
-
 [ApiController]
 [Route("api/workoutExercises")]
+[Produces("application/json")]
 public class WorkoutExercisesController : ControllerBase
 {
+	private readonly IWorkoutExerciseService _service;
+
+	public WorkoutExercisesController(IWorkoutExerciseService service)
+	{
+		_service = service;
+	}
+
+	/// <summary>
+	/// Retrieves all workout exercises.
+	/// </summary>
 	[HttpGet]
-	public ActionResult<IEnumerable<WorkoutExercise>> GetAll()
-		=> Ok(DataStore.WorkoutExercises);
+	public async Task<ActionResult<IEnumerable<WorkoutExerciseDto>>> GetAll()
+	{
+		var list = await _service.GetAllWorkoutExercisesAsync();
+		return Ok(list);
+	}
 
+	/// <summary>
+	/// Retrieves a single workout exercise by its ID.
+	/// </summary>
 	[HttpGet("{id:int}")]
-	public ActionResult<WorkoutExercise> Get(int id)
+	public async Task<ActionResult<WorkoutExerciseDto>> Get(int id)
 	{
-		var we = DataStore.WorkoutExercises.FirstOrDefault(x => x.Id == id);
-		if (we == null) return NotFound();
-		return Ok(we);
+		var dto = await _service.GetWorkoutExerciseByIdAsync(id);
+		if (dto is null)
+			return NotFound();
+		return Ok(dto);
 	}
 
+	/// <summary>
+	/// Creates a new workout exercise entry.
+	/// </summary>
 	[HttpPost]
-	public ActionResult<WorkoutExercise> Create(WorkoutExercise we)
+	public async Task<ActionResult<WorkoutExerciseDto>> Create(CreateWorkoutExerciseRequest request)
 	{
-		we.Id = DataStore.WorkoutExercises.Count + 1;
-		DataStore.WorkoutExercises.Add(we);
-		return CreatedAtAction(nameof(Get), new { id = we.Id }, we);
+		var created = await _service.CreateWorkoutExerciseAsync(request);
+		return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
 	}
 
+	/// <summary>
+	/// Updates an existing workout exercise.
+	/// </summary>
 	[HttpPut("{id:int}")]
-	public IActionResult Update(int id, WorkoutExercise we)
+	public async Task<IActionResult> Update(int id, UpdateWorkoutExerciseRequest request)
 	{
-		var existing = DataStore.WorkoutExercises.FirstOrDefault(x => x.Id == id);
-		if (existing == null) return NotFound();
-
-		existing.WorkoutLogId = we.WorkoutLogId;
-		existing.ExerciseId = we.ExerciseId;
-		existing.SetsCompleted = we.SetsCompleted;
-		existing.RepsCompleted = we.RepsCompleted;
-		existing.WeightUsed = we.WeightUsed;
+		var updated = await _service.UpdateWorkoutExerciseAsync(id, request);
+		if (!updated)
+			return NotFound();
 		return NoContent();
 	}
 
+	/// <summary>
+	/// Deletes a workout exercise by its ID.
+	/// </summary>
 	[HttpDelete("{id:int}")]
-	public IActionResult Delete(int id)
+	public async Task<IActionResult> Delete(int id)
 	{
-		var existing = DataStore.WorkoutExercises.FirstOrDefault(x => x.Id == id);
-		if (existing == null) return NotFound();
-
-		DataStore.WorkoutExercises.Remove(existing);
+		var deleted = await _service.DeleteWorkoutExerciseAsync(id);
+		if (!deleted)
+			return NotFound();
 		return NoContent();
 	}
 }

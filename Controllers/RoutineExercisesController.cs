@@ -1,56 +1,73 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using WorkoutPlanner.Data;
-using WorkoutPlanner.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
-
 [ApiController]
 [Route("api/routineExercises")]
+[Produces("application/json")]
 public class RoutineExercisesController : ControllerBase
 {
+	private readonly IRoutineExerciseService _service;
+
+	public RoutineExercisesController(IRoutineExerciseService service)
+	{
+		_service = service;
+	}
+
+	/// <summary>
+	/// Retrieves all routine–exercise links.
+	/// </summary>
 	[HttpGet]
-	public ActionResult<IEnumerable<RoutineExercise>> GetAll()
-		=> Ok(DataStore.RoutineExercises);
+	public async Task<ActionResult<IEnumerable<RoutineExerciseDto>>> GetAll()
+	{
+		var list = await _service.GetAllRoutineExercisesAsync();
+		return Ok(list);
+	}
 
+	/// <summary>
+	/// Retrieves a single routine–exercise link by its ID.
+	/// </summary>
 	[HttpGet("{id:int}")]
-	public ActionResult<RoutineExercise> Get(int id)
+	public async Task<ActionResult<RoutineExerciseDto>> Get(int id)
 	{
-		var re = DataStore.RoutineExercises.FirstOrDefault(x => x.Id == id);
-		if (re == null) return NotFound();
-		return Ok(re);
+		var dto = await _service.GetRoutineExerciseByIdAsync(id);
+		if (dto is null)
+			return NotFound();
+		return Ok(dto);
 	}
 
+	/// <summary>
+	/// Creates a new routine–exercise link.
+	/// </summary>
 	[HttpPost]
-	public ActionResult<RoutineExercise> Create(RoutineExercise re)
+	public async Task<ActionResult<RoutineExerciseDto>> Create(CreateRoutineExerciseRequest request)
 	{
-		re.Id = DataStore.RoutineExercises.Count + 1;
-		DataStore.RoutineExercises.Add(re);
-		return CreatedAtAction(nameof(Get), new { id = re.Id }, re);
+		var created = await _service.CreateExerciseToRoutineAsync(request);
+		return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
 	}
 
+	/// <summary>
+	/// Updates an existing routine-exercise link.
+	/// </summary>
 	[HttpPut("{id:int}")]
-	public IActionResult Update(int id, RoutineExercise re)
+	public async Task<IActionResult> Update(int id, UpdateRoutineExerciseRequest request)
 	{
-		var existing = DataStore.RoutineExercises.FirstOrDefault(x => x.Id == id);
-		if (existing == null) return NotFound();
-
-		existing.RoutineId = re.RoutineId;
-		existing.ExerciseId = re.ExerciseId;
-		existing.Sets = re.Sets;
-		existing.RepsPerSet = re.RepsPerSet;
-		existing.Weight = re.Weight;
+		var updated = await _service.UpdateExerciseInRoutineAsync(id, request);
+		if (!updated)
+			return NotFound();
 		return NoContent();
 	}
 
+	/// <summary>
+	/// Deletes a routine–exercise link by its ID.
+	/// </summary>
 	[HttpDelete("{id:int}")]
-	public IActionResult Delete(int id)
+	public async Task<IActionResult> Delete(int id)
 	{
-		var existing = DataStore.RoutineExercises.FirstOrDefault(x => x.Id == id);
-		if (existing == null) return NotFound();
-
-		DataStore.RoutineExercises.Remove(existing);
+		var deleted = await _service.DeleteExerciseFromRoutineAsync(id);
+		if (!deleted)
+			return NotFound();
 		return NoContent();
 	}
 }

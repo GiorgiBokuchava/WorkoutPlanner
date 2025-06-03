@@ -1,4 +1,4 @@
-﻿namespace WorkoutPlanner.Models;
+﻿namespace WorkoutPlanner.Domain.Entities;
 
 /// <summary>
 /// Represents a logged workout session with its associated routine and exercises
