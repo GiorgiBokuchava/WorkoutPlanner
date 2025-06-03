@@ -1,7 +1,7 @@
 ﻿using WorkoutPlanner.Contracts;
 using WorkoutPlanner.Domain.Entities;
-using WorkoutPlanner.Application.Interfaces.Repositories;
 using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Infrastructure.Repositories;
 
 namespace WorkoutPlanner.Application.Services;
 

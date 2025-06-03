@@ -2,7 +2,7 @@ using WorkoutPlanner.Domain.Entities;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Dapper;
-using WorkoutPlanner.Application.Interfaces.Repositories;
+using WorkoutPlanner.Infrastructure.Repositories;
 
 namespace WorkoutPlanner.Infrastructure.Persistance;
 public class SqlWorkoutLogRepository : IWorkoutLogRepository
