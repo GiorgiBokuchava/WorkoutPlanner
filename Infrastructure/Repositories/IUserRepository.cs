@@ -9,4 +9,12 @@ public interface IUserRepository
 	Task<int> AddUserAsync(User user);
 	Task UpdateUserAsync(User user);
 	Task DeleteUserAsync(int userId);
+
+	Task<int> AddRefreshTokenAsync(int userId, string tokenHash, DateTime expiresAt);
+	Task<RefreshToken?> GetRefreshTokenByHashAsync(string tokenHash);
+	Task RevokeRefreshTokenAsync(int refreshTokenId, DateTime revokedAt, byte revocationReason);
+	Task RevokeAllRefreshTokensForUserAsync(int userId);
+
+	Task<IEnumerable<string>> GetRolesForUserAsync(int userId);
+	Task AssignRoleToUserAsync(int userId, string roleName);
 }

@@ -5,13 +5,21 @@ GO
 IF NOT EXISTS (SELECT 1 FROM [Identity].Users WHERE email = 'alice@example.com')
 BEGIN
     INSERT INTO [Identity].Users (name, email, password_hash)
-    VALUES ('Alice', 'alice@example.com', CONVERT(varchar(64), HASHBYTES('SHA2_256', 'AliceP@ss'), 2));
+    VALUES (
+        'Alice',
+        'alice@example.com',
+        '$2a$10$E/7aKcZ2dQ6n4Q11K0s1euKQ7vD2b5n0GkXkEpPZb86.m3HGDZ0oG'
+    );
 END
 
 IF NOT EXISTS (SELECT 1 FROM [Identity].Users WHERE email = 'bob@example.com')
 BEGIN
     INSERT INTO [Identity].Users (name, email, password_hash)
-    VALUES ('Bob', 'bob@example.com', CONVERT(varchar(64), HASHBYTES('SHA2_256', 'BobP@ss42!'), 2));
+    VALUES (
+        'Bob',
+        'bob@example.com',
+        '$2a$10$pV1a3FAfG.jKxmrLKpK1jeLSoijGH8XYRkFq6sGdUcZSx0HVY/2Ge'
+    );
 END
 
 DECLARE @AliceId int  = (SELECT TOP 1 id FROM [Identity].Users WHERE email = 'alice@example.com' ORDER BY id);
