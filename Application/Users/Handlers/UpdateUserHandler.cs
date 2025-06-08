@@ -13,7 +13,7 @@ public sealed class UpdateUserHandler
 
 	public async Task<Unit> Handle(UpdateUserCommand c, CancellationToken ct)
 	{
-		var req = new UpdateUserRequest(c.Name, c.Email, c.PasswordHash);
+		var req = new UpdateUserRequest(c.Name, c.Email, c.Password);
 		var ok = await _users.UpdateUserAsync(c.Id, req);
 		return Unit.Value;
 	}

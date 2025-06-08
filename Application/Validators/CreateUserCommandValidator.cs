@@ -13,7 +13,7 @@ public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 		RuleFor(x => x.Email)
 			.NotEmpty().EmailAddress().WithMessage("A valid email is required.");
 
-		RuleFor(x => x.PasswordHash)
+		RuleFor(x => x.Password)
 			.MinimumLength(8).WithMessage("Password must be at least 8 characters.");
 	}
 }

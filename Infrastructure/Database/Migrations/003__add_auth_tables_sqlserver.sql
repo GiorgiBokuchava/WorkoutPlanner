@@ -28,7 +28,7 @@ BEGIN
 END
 GO
 
--- Create [Identity].RefreshTokens (bonus)
+-- Create [Identity].RefreshTokens
 IF OBJECT_ID('[Identity].RefreshTokens', 'U') IS NULL
 BEGIN
     CREATE TABLE [Identity].RefreshTokens (

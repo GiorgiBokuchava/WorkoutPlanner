@@ -7,6 +7,6 @@ using MediatR;
 /// </summary>
 /// <param name="Name"></param>
 /// <param name="Email"></param>
-/// <param name="PasswordHash"></param>
-public record CreateUserCommand(string Name, string Email, string PasswordHash)
+/// <param name="Password"></param>
+public record CreateUserCommand(string Name, string Email, string Password)
 	: IRequest<UserDto>;
