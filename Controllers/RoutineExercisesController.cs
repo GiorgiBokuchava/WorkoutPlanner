@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Common;
 using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
 [ApiController]
 [Route("api/routineExercises")]
 [Produces("application/json")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class RoutineExercisesController : ControllerBase
 {
 	private readonly IRoutineExerciseService _service;
@@ -41,6 +45,7 @@ public class RoutineExercisesController : ControllerBase
 	/// Creates a new routine–exercise link.
 	/// </summary>
 	[HttpPost]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	public async Task<ActionResult<RoutineExerciseDto>> Create(CreateRoutineExerciseRequest request)
 	{
 		var created = await _service.CreateExerciseToRoutineAsync(request);
@@ -51,6 +56,7 @@ public class RoutineExercisesController : ControllerBase
 	/// Updates an existing routine-exercise link.
 	/// </summary>
 	[HttpPut("{id:int}")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	public async Task<IActionResult> Update(int id, UpdateRoutineExerciseRequest request)
 	{
 		var updated = await _service.UpdateExerciseInRoutineAsync(id, request);
@@ -63,6 +69,7 @@ public class RoutineExercisesController : ControllerBase
 	/// Deletes a routine–exercise link by its ID.
 	/// </summary>
 	[HttpDelete("{id:int}")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	public async Task<IActionResult> Delete(int id)
 	{
 		var deleted = await _service.DeleteExerciseFromRoutineAsync(id);

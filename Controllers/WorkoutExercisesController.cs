@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Common;
 using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
 [ApiController]
 [Route("api/workoutExercises")]
 [Produces("application/json")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class WorkoutExercisesController : ControllerBase
 {
 	private readonly IWorkoutExerciseService _service;
@@ -41,6 +45,7 @@ public class WorkoutExercisesController : ControllerBase
 	/// Creates a new workout exercise entry.
 	/// </summary>
 	[HttpPost]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	public async Task<ActionResult<WorkoutExerciseDto>> Create(CreateWorkoutExerciseRequest request)
 	{
 		var created = await _service.CreateWorkoutExerciseAsync(request);
@@ -51,6 +56,7 @@ public class WorkoutExercisesController : ControllerBase
 	/// Updates an existing workout exercise.
 	/// </summary>
 	[HttpPut("{id:int}")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	public async Task<IActionResult> Update(int id, UpdateWorkoutExerciseRequest request)
 	{
 		var updated = await _service.UpdateWorkoutExerciseAsync(id, request);
@@ -63,6 +69,7 @@ public class WorkoutExercisesController : ControllerBase
 	/// Deletes a workout exercise by its ID.
 	/// </summary>
 	[HttpDelete("{id:int}")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	public async Task<IActionResult> Delete(int id)
 	{
 		var deleted = await _service.DeleteWorkoutExerciseAsync(id);

@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Common;
 using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
 [ApiController]
 [Route("api/users")]
 [Produces("application/json")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = AppConstants.Roles.Admin)]
 public class UsersController : ControllerBase
 {
 	private readonly IUserService _service;

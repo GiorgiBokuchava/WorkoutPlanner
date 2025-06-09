@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
@@ -58,6 +59,7 @@ public class AuthController : ControllerBase
 	/// <param name="request">The refresh token request.</param>
 	/// <returns>New access and refresh tokens if valid; otherwise Unauthorized.</returns>
 	[HttpPost("refresh")]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	public async Task<IActionResult> Refresh([FromBody] RefreshRequest request)
 	{
 		var (newAccess, newRefresh) = await _authService.RefreshAsync(request.RefreshToken);
@@ -77,7 +79,7 @@ public class AuthController : ControllerBase
 	/// </summary>
 	/// <returns>No content if successful; otherwise Unauthorized.</returns>
 	[HttpPost("logout")]
-	[Authorize]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	public async Task<IActionResult> Logout()
 	{
 		var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
