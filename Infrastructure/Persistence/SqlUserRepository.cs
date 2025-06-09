@@ -1,25 +1,12 @@
 using Dapper;
-using Microsoft.Data.SqlClient;
-using System.Data;
 using WorkoutPlanner.Domain.Entities;
 using WorkoutPlanner.Infrastructure.Repositories;
 
 namespace WorkoutPlanner.Infrastructure.Persistence;
 
-public class SqlUserRepository : IUserRepository
+public class SqlUserRepository : RepositoryBase, IUserRepository
 {
-	private readonly IConfiguration _configuration;
-
-	public SqlUserRepository(IConfiguration configuration)
-	{
-		_configuration = configuration;
-	}
-
-	private IDbConnection GetConnection()
-	{
-		return new SqlConnection(_configuration.GetConnectionString("DefaultConnection"))
-			?? throw new InvalidOperationException("DefaultConnection is not set");
-	}
+	public SqlUserRepository(IConfiguration configuration) : base(configuration) { }
 
 	public async Task<IEnumerable<User>> GetAllUsersAsync()
 	{

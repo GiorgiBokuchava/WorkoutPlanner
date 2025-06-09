@@ -1,6 +1,8 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -8,12 +10,16 @@ using WorkoutPlanner.Application.Interfaces.Services;
 using WorkoutPlanner.Application.Services;
 using WorkoutPlanner.Application.Validators;
 using WorkoutPlanner.Infrastructure.Options;
-using WorkoutPlanner.Infrastructure.Persistance;
 using WorkoutPlanner.Infrastructure.Persistence;
 using WorkoutPlanner.Infrastructure.Repositories;
 using WorkoutPlanner.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
+builder.Logging.AddConsole();
 
 // Controllers & Swagger
 builder.Services.AddControllers();
@@ -42,6 +48,22 @@ builder.Services.AddScoped<IRoutineRepository, SqlRoutineRepository>();
 builder.Services.AddScoped<IExerciseRepository, SqlExerciseRepository>();
 builder.Services.AddScoped<IWorkoutLogRepository, SqlWorkoutLogRepository>();
 
+builder.Services
+	.AddHealthChecks()
+	.AddSqlServer(
+		// null-coalesce to satisfy the compiler
+		builder.Configuration.GetConnectionString("DefaultConnection")
+			?? throw new InvalidOperationException("DefaultConnection is not set"),
+		name: "sql",
+		tags: new[] { "db", "sql" },
+		timeout: TimeSpan.FromSeconds(5)
+	);
+
+builder.Services.AddHealthChecksUI(setup =>
+{
+	setup.AddHealthCheckEndpoint("WorkoutPlanner", "/health");
+}).AddInMemoryStorage();
+
 // Application services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoutineService, RoutineService>();
@@ -64,7 +86,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateUserCommandValidator>
 
 // JWT Auth
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
-var keyBytes = Encoding.UTF8.GetBytes(jwtSettings.Key);
+var keyBytes = Encoding.UTF8.GetBytes(jwtSettings!.Key);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -108,8 +130,33 @@ if (app.Environment.IsDevelopment())
 	});
 }
 
+// expose the raw health check
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+	ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+// expose the dashboard UI
+app.MapHealthChecksUI(options =>
+{
+	options.UIPath = "/health-ui";
+	options.ApiPath = "/health-ui-api";
+});
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.Run();
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+try
+{
+	logger.LogInformation("Application starting up");
+	app.Run();
+	logger.LogInformation("Application stopped");
+}
+catch (Exception e)
+{
+	logger.LogCritical(e, "Application failed to start");
+	throw;
+}
