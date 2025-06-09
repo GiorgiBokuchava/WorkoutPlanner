@@ -10,8 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutPlanner", "WorkoutPlanner.csproj", "{A05F8F04-7C9A-89C9-CEB9-5A427E08A8E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutPlanner.Tests", "..\WorkoutPlanner.Tests\WorkoutPlanner.Tests.csproj", "{1CA1D098-BF6B-479A-A154-BC0A35B5396B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,18 +32,6 @@ Global
 		{A05F8F04-7C9A-89C9-CEB9-5A427E08A8E4}.Release|x64.Build.0 = Release|Any CPU
 		{A05F8F04-7C9A-89C9-CEB9-5A427E08A8E4}.Release|x86.ActiveCfg = Release|Any CPU
 		{A05F8F04-7C9A-89C9-CEB9-5A427E08A8E4}.Release|x86.Build.0 = Release|Any CPU
-		{1CA1D098-BF6B-479A-A154-BC0A35B5396B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1CA1D098-BF6B-479A-A154-BC0A35B5396B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1CA1D098-BF6B-479A-A154-BC0A35B5396B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{1CA1D098-BF6B-479A-A154-BC0A35B5396B}.Debug|x64.Build.0 = Debug|Any CPU
-		{1CA1D098-BF6B-479A-A154-BC0A35B5396B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{1CA1D098-BF6B-479A-A154-BC0A35B5396B}.Debug|x86.Build.0 = Debug|Any CPU
-		{1CA1D098-BF6B-479A-A154-BC0A35B5396B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1CA1D098-BF6B-479A-A154-BC0A35B5396B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1CA1D098-BF6B-479A-A154-BC0A35B5396B}.Release|x64.ActiveCfg = Release|Any CPU
-		{1CA1D098-BF6B-479A-A154-BC0A35B5396B}.Release|x64.Build.0 = Release|Any CPU
-		{1CA1D098-BF6B-479A-A154-BC0A35B5396B}.Release|x86.ActiveCfg = Release|Any CPU
-		{1CA1D098-BF6B-479A-A154-BC0A35B5396B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
