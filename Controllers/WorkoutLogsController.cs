@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Common;
 using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
@@ -63,7 +64,7 @@ public class WorkoutLogsController : ControllerBase
 	/// <param name="userId">User ID</param>
 	/// <param name="request">Workout log data</param>
 	[HttpPost]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	[ProducesResponseType(StatusCodes.Status201Created)]
 	public async Task<ActionResult<WorkoutLogDto>> Create(
 		[FromQuery] int userId,
@@ -80,7 +81,7 @@ public class WorkoutLogsController : ControllerBase
 	/// <param name="userId">User ID</param>
 	/// <param name="request">Updated data</param>
 	[HttpPut("{id:int}")]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	public async Task<IActionResult> Update(
@@ -99,7 +100,7 @@ public class WorkoutLogsController : ControllerBase
 	/// </summary>
 	/// <param name="id">Workout log ID</param>
 	[HttpDelete("{id:int}")]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	public async Task<IActionResult> Delete(int id)

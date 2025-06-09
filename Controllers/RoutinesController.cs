@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Common;
 using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
@@ -54,7 +55,7 @@ public class RoutinesController : ControllerBase
 	/// Creates a new routine.
 	/// </summary>
 	[HttpPost]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	public async Task<ActionResult<RoutineDto>> Create(CreateRoutineRequest request)
 	{
 		var created = await _service.CreateRoutineAsync(request);
@@ -65,7 +66,7 @@ public class RoutinesController : ControllerBase
 	/// Updates an existing routine.
 	/// </summary>
 	[HttpPut("{id:int}")]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	public async Task<IActionResult> Update(int id, UpdateRoutineRequest request)
 	{
 		var updated = await _service.UpdateRoutineAsync(id, request);
@@ -78,7 +79,7 @@ public class RoutinesController : ControllerBase
 	/// Deletes a routine by its ID.
 	/// </summary>
 	[HttpDelete("{id:int}")]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	public async Task<IActionResult> Delete(int id)
 	{
 		var deleted = await _service.DeleteRoutineAsync(id);

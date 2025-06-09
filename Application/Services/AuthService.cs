@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Common;
 using WorkoutPlanner.Contracts;
 using WorkoutPlanner.Infrastructure.Repositories;
 using WorkoutPlanner.Infrastructure.Security;
@@ -93,8 +94,8 @@ public class AuthService : IAuthService
 
 		// ensure default “User” role exists
 		var roles = await _userRepository.GetRolesForUserAsync(dto.Id);
-		if (!roles.Contains("User"))
-			await _userRepository.AssignRoleToUserAsync(dto.Id, "User");
+		if (!roles.Contains(AppConstants.Roles.User))
+			await _userRepository.AssignRoleToUserAsync(dto.Id, AppConstants.Roles.User);
 
 		return dto;
 	}

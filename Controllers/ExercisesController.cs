@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WorkoutPlanner.Application.Interfaces.Services;
+using WorkoutPlanner.Common;
 using WorkoutPlanner.Contracts;
 
 namespace WorkoutPlanner.Controllers;
@@ -49,7 +50,7 @@ public class ExercisesController : ControllerBase
 	/// <param name="request">The exercise creation request.</param>
 	/// <returns>The created exercise DTO.</returns>
 	[HttpPost]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	public async Task<ActionResult<ExerciseDto>> Create(CreateExerciseRequest request)
 	{
 		var created = await _service.CreateExerciseAsync(request);
@@ -63,7 +64,7 @@ public class ExercisesController : ControllerBase
 	/// <param name="request">The updated exercise data.</param>
 	/// <returns>No content if successful; otherwise, NotFound.</returns>
 	[HttpPut("{id:int}")]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	public async Task<IActionResult> Update(int id, UpdateExerciseRequest request)
 	{
 		var updated = await _service.UpdateExerciseAsync(id, request);
@@ -78,7 +79,7 @@ public class ExercisesController : ControllerBase
 	/// <param name="id">The ID of the exercise to delete.</param>
 	/// <returns>No content if successful; otherwise, NotFound.</returns>
 	[HttpDelete("{id:int}")]
-	[Authorize(Roles = "Admin")]
+	[Authorize(Roles = AppConstants.Roles.Admin)]
 	public async Task<IActionResult> Delete(int id)
 	{
 		var deleted = await _service.DeleteExerciseAsync(id);
