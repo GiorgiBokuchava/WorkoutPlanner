@@ -14,23 +14,21 @@ namespace WorkoutPlanner.Controllers;
 public class AuthController : ControllerBase
 {
 	private readonly IAuthService _authService;
-	private readonly IMediator _mediator;
 
-	public AuthController(IAuthService authService, IMediator mediator)
+	public AuthController(IAuthService authService)
 	{
 		_authService = authService;
-		_mediator = mediator;
 	}
 
 	/// <summary>
 	/// Registers a new user.
 	/// </summary>
-	/// <param name="command">The registration command with name, email, and password.</param>
+	/// <param name="request">The registration command with name, email, and password.</param>
 	/// <returns>The created user DTO.</returns>
 	[HttpPost("register")]
-	public async Task<IActionResult> Register([FromBody] CreateUserCommand command)
+	public async Task<IActionResult> Register([FromBody] CreateUserRequest request)
 	{
-		var userDto = await _mediator.Send(command);
+		var userDto = await _authService.RegisterAsync(request);
 		return CreatedAtAction(nameof(Register), new { id = userDto.Id }, userDto);
 	}
 
