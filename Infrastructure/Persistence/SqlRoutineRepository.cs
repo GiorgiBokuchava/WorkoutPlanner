@@ -1,24 +1,11 @@
-using WorkoutPlanner.Domain.Entities;
-using System.Data;
-using Microsoft.Data.SqlClient;
 using Dapper;
+using WorkoutPlanner.Domain.Entities;
 using WorkoutPlanner.Infrastructure.Repositories;
 
-namespace WorkoutPlanner.Infrastructure.Persistance;
-public class SqlRoutineRepository : IRoutineRepository
+namespace WorkoutPlanner.Infrastructure.Persistence;
+public class SqlRoutineRepository : RepositoryBase, IRoutineRepository
 {
-	private readonly IConfiguration _configuration;
-
-	public SqlRoutineRepository(IConfiguration configuration)
-	{
-		_configuration = configuration;
-	}
-
-	private IDbConnection GetConnection()
-	{
-		return new SqlConnection(_configuration.GetConnectionString("DefaultConnection"))
-			?? throw new InvalidOperationException("DefaultConnection is not set");
-	}
+	public SqlRoutineRepository(IConfiguration configuration) : base(configuration) { }
 
 	public async Task<IEnumerable<Routine>> GetAllRoutinesAsync()
 	{
